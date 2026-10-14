@@ -1,0 +1,741 @@
+{
+  "version": "2026-10-14.seed.1",
+  "status": "Provisional",
+  "matching": "Exact canonical ID and name; no fuzzy membership",
+  "advanced_includes_ai": true,
+  "entries": [
+    {
+      "id": 362,
+      "canonical": "artificial intelligence",
+      "aliases": [
+        "artificial intelligence"
+      ],
+      "name_ar": "الذكاء الاصطناعي",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 292,
+      "canonical": "machine learning",
+      "aliases": [
+        "machine learning"
+      ],
+      "name_ar": "تعلّم الآلة",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 1520,
+      "canonical": "deep learning",
+      "aliases": [
+        "deep learning"
+      ],
+      "name_ar": "التعلم العميق",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 6027,
+      "canonical": "neural networks",
+      "aliases": [
+        "neural networks"
+      ],
+      "name_ar": "تطوير الذكاء الاصطناعي · neural networks",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 1661,
+      "canonical": "natural language processing",
+      "aliases": [
+        "natural language processing"
+      ],
+      "name_ar": "معالجة اللغات الطبيعية",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 3031,
+      "canonical": "computer vision",
+      "aliases": [
+        "computer vision"
+      ],
+      "name_ar": "تطوير الذكاء الاصطناعي · computer vision",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 6318,
+      "canonical": "reinforcement learning",
+      "aliases": [
+        "reinforcement learning"
+      ],
+      "name_ar": "تطوير الذكاء الاصطناعي · reinforcement learning",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 3993,
+      "canonical": "mlops",
+      "aliases": [
+        "mlops"
+      ],
+      "name_ar": "تطوير الذكاء الاصطناعي · mlops",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 1392,
+      "canonical": "tensorflow",
+      "aliases": [
+        "tensorflow"
+      ],
+      "name_ar": "TensorFlow",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 1676,
+      "canonical": "pytorch",
+      "aliases": [
+        "pytorch"
+      ],
+      "name_ar": "PyTorch",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 4285,
+      "canonical": "machine learning algorithms",
+      "aliases": [
+        "machine learning algorithms"
+      ],
+      "name_ar": "تطوير الذكاء الاصطناعي · machine learning algorithms",
+      "category": "ai_development",
+      "category_ar": "تطوير الذكاء الاصطناعي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 3373,
+      "canonical": "generative ai",
+      "aliases": [
+        "generative ai"
+      ],
+      "name_ar": "تطبيقات الذكاء الاصطناعي التوليدي · generative ai",
+      "category": "applied_ai",
+      "category_ar": "تطبيقات الذكاء الاصطناعي التوليدي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 4962,
+      "canonical": "large language models",
+      "aliases": [
+        "large language models"
+      ],
+      "name_ar": "تطبيقات الذكاء الاصطناعي التوليدي · large language models",
+      "category": "applied_ai",
+      "category_ar": "تطبيقات الذكاء الاصطناعي التوليدي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 7252,
+      "canonical": "prompt engineering",
+      "aliases": [
+        "prompt engineering"
+      ],
+      "name_ar": "تطبيقات الذكاء الاصطناعي التوليدي · prompt engineering",
+      "category": "applied_ai",
+      "category_ar": "تطبيقات الذكاء الاصطناعي التوليدي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 18187,
+      "canonical": "retrieval augmented generation",
+      "aliases": [
+        "retrieval augmented generation"
+      ],
+      "name_ar": "تطبيقات الذكاء الاصطناعي التوليدي · retrieval augmented generation",
+      "category": "applied_ai",
+      "category_ar": "تطبيقات الذكاء الاصطناعي التوليدي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 5883,
+      "canonical": "chatgpt",
+      "aliases": [
+        "chatgpt"
+      ],
+      "name_ar": "تطبيقات الذكاء الاصطناعي التوليدي · chatgpt",
+      "category": "applied_ai",
+      "category_ar": "تطبيقات الذكاء الاصطناعي التوليدي",
+      "rationale": "Explicit AI concept or named AI tool.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 103,
+      "canonical": "sql",
+      "aliases": [
+        "sql"
+      ],
+      "name_ar": "لغة الاستعلامات المهيكلة (SQL)",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 1971,
+      "canonical": "data engineering",
+      "aliases": [
+        "data engineering"
+      ],
+      "name_ar": "هندسة البيانات",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 857,
+      "canonical": "etl",
+      "aliases": [
+        "etl"
+      ],
+      "name_ar": "استخراج البيانات وتحويلها وتحميلها",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 714,
+      "canonical": "data warehousing",
+      "aliases": [
+        "data warehousing"
+      ],
+      "name_ar": "مستودعات البيانات",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 581,
+      "canonical": "business intelligence",
+      "aliases": [
+        "business intelligence"
+      ],
+      "name_ar": "ذكاء الأعمال",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 182,
+      "canonical": "power bi",
+      "aliases": [
+        "power bi"
+      ],
+      "name_ar": "Power BI",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 316,
+      "canonical": "tableau",
+      "aliases": [
+        "tableau"
+      ],
+      "name_ar": "Tableau",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 244,
+      "canonical": "data visualization",
+      "aliases": [
+        "data visualization"
+      ],
+      "name_ar": "تصوّر البيانات",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 387,
+      "canonical": "mysql",
+      "aliases": [
+        "mysql"
+      ],
+      "name_ar": "MySQL",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 703,
+      "canonical": "postgresql",
+      "aliases": [
+        "postgresql"
+      ],
+      "name_ar": "PostgreSQL",
+      "category": "data",
+      "category_ar": "البيانات والتحليلات",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 496,
+      "canonical": "programming",
+      "aliases": [
+        "programming"
+      ],
+      "name_ar": "البرمجة",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 100,
+      "canonical": "python",
+      "aliases": [
+        "python"
+      ],
+      "name_ar": "Python",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 116,
+      "canonical": "java",
+      "aliases": [
+        "java"
+      ],
+      "name_ar": "Java",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 105,
+      "canonical": "javascript",
+      "aliases": [
+        "javascript"
+      ],
+      "name_ar": "JavaScript",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 738,
+      "canonical": "software testing",
+      "aliases": [
+        "software testing"
+      ],
+      "name_ar": "اختبار البرمجيات",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 287,
+      "canonical": "git",
+      "aliases": [
+        "git"
+      ],
+      "name_ar": "Git",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 262,
+      "canonical": "cloud computing",
+      "aliases": [
+        "cloud computing"
+      ],
+      "name_ar": "الحوسبة السحابية",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 193,
+      "canonical": "aws",
+      "aliases": [
+        "aws"
+      ],
+      "name_ar": "Amazon Web Services",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 236,
+      "canonical": "microsoft azure",
+      "aliases": [
+        "microsoft azure"
+      ],
+      "name_ar": "Microsoft Azure",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 349,
+      "canonical": "docker",
+      "aliases": [
+        "docker"
+      ],
+      "name_ar": "Docker",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 457,
+      "canonical": "kubernetes",
+      "aliases": [
+        "kubernetes"
+      ],
+      "name_ar": "Kubernetes",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 396,
+      "canonical": "cybersecurity",
+      "aliases": [
+        "cybersecurity"
+      ],
+      "name_ar": "الأمن السيبراني",
+      "category": "software",
+      "category_ar": "البرمجيات والحوسبة السحابية والأمن السيبراني",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 65,
+      "canonical": "erp",
+      "aliases": [
+        "erp"
+      ],
+      "name_ar": "أنظمة تخطيط موارد المؤسسة",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 84,
+      "canonical": "sap",
+      "aliases": [
+        "sap"
+      ],
+      "name_ar": "SAP",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 194,
+      "canonical": "crm",
+      "aliases": [
+        "crm"
+      ],
+      "name_ar": "أنظمة إدارة علاقات العملاء",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 319,
+      "canonical": "salesforce",
+      "aliases": [
+        "salesforce"
+      ],
+      "name_ar": "Salesforce",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 50,
+      "canonical": "autocad",
+      "aliases": [
+        "autocad"
+      ],
+      "name_ar": "AutoCAD",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 526,
+      "canonical": "bim",
+      "aliases": [
+        "bim"
+      ],
+      "name_ar": "نمذجة معلومات البناء",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 1214,
+      "canonical": "gis",
+      "aliases": [
+        "gis"
+      ],
+      "name_ar": "نظم المعلومات الجغرافية",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 1164,
+      "canonical": "internet of things",
+      "aliases": [
+        "internet of things"
+      ],
+      "name_ar": "إنترنت الأشياء",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 3570,
+      "canonical": "robotic process automation",
+      "aliases": [
+        "robotic process automation"
+      ],
+      "name_ar": "التقنيات الرقمية المؤسسية والصناعية · robotic process automation",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 2216,
+      "canonical": "plc programming",
+      "aliases": [
+        "plc programming"
+      ],
+      "name_ar": "التقنيات الرقمية المؤسسية والصناعية · plc programming",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 931,
+      "canonical": "scada",
+      "aliases": [
+        "scada"
+      ],
+      "name_ar": "أنظمة التحكم الإشرافي وجمع البيانات",
+      "category": "enterprise",
+      "category_ar": "التقنيات الرقمية المؤسسية والصناعية",
+      "rationale": "Explicit digital technology; does not alone imply AI.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 13,
+      "canonical": "microsoft office",
+      "aliases": [
+        "microsoft office"
+      ],
+      "name_ar": "Microsoft Office",
+      "category": "basic",
+      "category_ar": "المهارات الرقمية الأساسية",
+      "rationale": "Explicit basic digital tool; excluded from advanced digital.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 14,
+      "canonical": "microsoft excel",
+      "aliases": [
+        "microsoft excel"
+      ],
+      "name_ar": "Microsoft Excel",
+      "category": "basic",
+      "category_ar": "المهارات الرقمية الأساسية",
+      "rationale": "Explicit basic digital tool; excluded from advanced digital.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 31,
+      "canonical": "microsoft word",
+      "aliases": [
+        "microsoft word"
+      ],
+      "name_ar": "Microsoft Word",
+      "category": "basic",
+      "category_ar": "المهارات الرقمية الأساسية",
+      "rationale": "Explicit basic digital tool; excluded from advanced digital.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 33,
+      "canonical": "microsoft powerpoint",
+      "aliases": [
+        "microsoft powerpoint"
+      ],
+      "name_ar": "Microsoft PowerPoint",
+      "category": "basic",
+      "category_ar": "المهارات الرقمية الأساسية",
+      "rationale": "Explicit basic digital tool; excluded from advanced digital.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 94,
+      "canonical": "microsoft outlook",
+      "aliases": [
+        "microsoft outlook"
+      ],
+      "name_ar": "Microsoft Outlook",
+      "category": "basic",
+      "category_ar": "المهارات الرقمية الأساسية",
+      "rationale": "Explicit basic digital tool; excluded from advanced digital.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 74,
+      "canonical": "computer literacy",
+      "aliases": [
+        "computer literacy"
+      ],
+      "name_ar": "الإلمام باستخدام الحاسوب",
+      "category": "basic",
+      "category_ar": "المهارات الرقمية الأساسية",
+      "rationale": "Explicit basic digital tool; excluded from advanced digital.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    },
+    {
+      "id": 213,
+      "canonical": "microsoft windows",
+      "aliases": [
+        "microsoft windows"
+      ],
+      "name_ar": "Microsoft Windows",
+      "category": "basic",
+      "category_ar": "المهارات الرقمية الأساسية",
+      "rationale": "Explicit basic digital tool; excluded from advanced digital.",
+      "review_date": "2026-10-14",
+      "review_status": "Provisional; domain review pending"
+    }
+  ],
+  "unmatched": [
+    "github copilot",
+    "data visualisation",
+    "apis"
+  ]
+}
