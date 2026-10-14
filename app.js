@@ -287,7 +287,8 @@ function drawOverview() {
   $("#statusText").textContent = t.status(fmt(o.n), activeFilterText());
   renderChips();
   $("#builtAt").textContent = META.built;
-  $("#covKv").innerHTML = [[t.covAds, cov.packed_ads], [t.covCorpus, cov.corpus_ads], [t.covSkills, META.skills.length], [t.covPost, cov.postings]]
+  // only the analysed population is reported (owner's choice)
+  $("#covKv").innerHTML = [[t.covAds, cov.packed_ads], [t.covSkills, META.skills.length], [t.covPost, cov.postings]]
     .map(([k, v]) => `<dt>${k}</dt><dd>${fmt(v)}</dd>`).join("");
 }
 
