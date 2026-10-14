@@ -19,7 +19,7 @@ function restoreBriefing() {
   }
   const major=q.get('major'); if(major && Object.hasOwn(META.isco_major,major)) S.major=major;
   if(S.isco !== '' && S.major && META.isco[+S.isco][0][0]!==S.major) S.major='';
-  for(const [key, values] of [['where',['any','requirements','duties']],['shiftWin',['trend','gpt','covid']],['smooth',['12','6','1']],['tlMode',['skills','volume']],['stated',['all','stated']]]) {
+  for(const [key, values] of [['where',['any','requirements','duties']],['shiftWin',['trend','gpt','agent','covid']],['smooth',['12','6','1']],['tlMode',['skills','volume']],['stated',['all','stated']]]) {
     if(values.includes(q.get(key))) S[key]=q.get(key);
   }
   if(['policy','uni','emp'].includes(q.get('aud'))) aud=q.get('aud');
@@ -61,7 +61,7 @@ function renderBriefing() {
   if (S.emi!=='') parts.push(META.emirates[+S.emi][ar?2:1]);
   if (S.type!=='') parts.push(T().types[+S.type]);
   const selected = parts.length ? parts.join(' · ') : st('Across the UAE','في الإمارات');
-  const winName = S.shiftWin==='gpt' ? 'ChatGPT' : S.shiftWin==='covid' ? st('COVID-19','كوفيد-19') : st('Long-run trend','الاتجاه طويل المدى');
+  const winName = S.shiftWin==='agent' ? st('Agentic AI','الذكاء الاصطناعي الوكيلي') : S.shiftWin==='gpt' ? 'ChatGPT' : S.shiftWin==='covid' ? st('COVID-19','كوفيد-19') : st('Long-run trend','الاتجاه طويل المدى');
   const title=$('.hero h1');
   title.textContent=st('The changing language of work.','كيف تتغيّر لغة العمل؟');
   $('#lede').textContent=st('What employers ask for is changing. Explore the skills gaining ground, the jobs that need them, and the evidence behind the shift.','تتغيّر متطلبات أصحاب العمل. استكشف المهارات المتزايدة والمهن التي تطلبها والبيانات التي تفسّر هذا التحول.');

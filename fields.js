@@ -49,3 +49,12 @@
     if (box && !box.dataset.filled) { box.dataset.filled = "1"; render(box); }
   }).observe(document.documentElement, { childList: true, subtree: true });
 })();
+
+/* agentic-AI comparison: 2024 has half of its ads in Web Data Commons, which stops in 2024, so the all-archive view is
+   coverage-limited; switch to the archive present in both windows (Internet Archive) unless the user picked one. */
+document.addEventListener("change", (e) => {
+  if (e.target && e.target.id === "r3-window" && (e.target.value === "agent" || e.target.value === "gpt")) {
+    const a = document.getElementById("r3-archive");
+    if (a && a.value === "") { a.value = "0"; a.dispatchEvent(new Event("change", { bubbles: true })); }
+  }
+});

@@ -4,7 +4,7 @@ const CFG = window.OBS_CONFIG || {};
 const $ = (s) => document.querySelector(s);
 const $$ = (s) => Array.from(document.querySelectorAll(s));
 const mi = (y, m) => (y - 2015) * 12 + (m - 1);
-const COVID = mi(2020, 3), GPT = mi(2022, 11);
+const COVID = mi(2020, 3), GPT = mi(2022, 11), AGENT = mi(2025, 1);   // agentic AI: general-purpose AI agents reach the public
 
 /* ---------- worker RPC ---------- */
 // versioned like the other assets, so a new data engine is never masked by the browser cache
@@ -296,8 +296,10 @@ function drawOverview() {
 function windows() {
   // default: the long-run trend, first two full years against the latest 12 complete months
   if (S.shiftWin === "trend") return [[Math.max(FIRST, mi(2018, 1)), mi(2019, 12)], [LAST - 11, LAST]];
+  // adoption takes time: eras of about two years, not the months around each launch
+  if (S.shiftWin === "agent") return [[mi(2023, 1), mi(2024, 12)], [mi(2025, 1), LAST]];
   if (S.shiftWin === "covid") return [[mi(2019, 3), mi(2020, 2)], [mi(2020, 6), mi(2021, 5)]];
-  return [[mi(2021, 11), mi(2022, 10)], [Math.max(mi(2023, 1), LAST - 11), LAST]];
+  return [[mi(2020, 11), mi(2022, 10)], [mi(2023, 1), mi(2024, 12)]];
 }
 const winLabel = (w) => `${ymLabel(w[0])} – ${ymLabel(w[1])}`;
 
@@ -353,7 +355,7 @@ async function drawTimeline() {
   // COVID-19 and ChatGPT are reference markers only: light, thin, small labels
   const marks = { symbol: "none", silent: true, lineStyle: { color: p.ink3, type: "dotted", width: 1, opacity: 0.6 },
     label: { color: p.ink3, fontFamily: p.font, fontSize: 11, fontWeight: 500, formatter: (d) => d.name, position: "end", distance: 4 },
-    data: [{ xAxis: ym(COVID), name: t.covid }, { xAxis: ym(GPT), name: t.gpt }] };
+    data: [{ xAxis: ym(COVID), name: t.covid }, { xAxis: ym(GPT), name: t.gpt }, { xAxis: ym(AGENT), name: t.agent }] };
   if (S.tlMode === "volume") {
     const volume = OV.byMonth.slice(m0, m1 + 1);
     $("#tlTitle").textContent = t.tlTitleVol; $("#tlQ").textContent = t.tlQVol;
