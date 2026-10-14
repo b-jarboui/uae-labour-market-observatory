@@ -5,7 +5,8 @@ let M = null, A = null, OFF = null, SK = null, SF = null, N = 0, NS = 0;
 const REC = 12;
 
 async function load(base) {
-  const get = (f) => fetch(base + f).then((r) => { if (!r.ok) throw new Error(f + " " + r.status); return r; });
+  // the worker URL carries the release version (?v=...): data files use it too, so cached data never meets new code
+  const get = (f) => fetch(base + f + self.location.search).then((r) => { if (!r.ok) throw new Error(f + " " + r.status); return r; });
   M = await (await get("meta.json")).json();
   const [ads, off, sk, sf] = await Promise.all(["ads.bin", "offsets.bin", "skills.bin", "sflags.bin"]
     .map((f) => get(f).then((r) => r.arrayBuffer())));
@@ -308,7 +309,7 @@ function collectEvidence(F,a,b,specs){
  const familyMap=new Map();if(kind==='family')for(const s of specs)for(const id of s.ids){if(!familyMap.has(id))familyMap.set(id,[]);familyMap.get(id).push(s.id);}
  for(let i=0;i<N;i++){
   if(!keep[i])continue;const month=A.month[i],w=month>=a[0]&&month<=a[1]?0:month>=b[0]&&month<=b[1]?1:-1;if(w<0)continue;
-  const q=Math.min(3,Math.floor((month-windows[w][0])/3)),src=A.src[i],h=src<3?src*12+(+M.months[month].slice(5)-1):-1,t=totals[w];t.n++;t.q[q]++;if(src<3)t.src[src]++;if(h>=0)t.strata[h]++;if(A.flags[i]&1)t.inferred++;if(A.isco[i]===255)t.unclassified++;
+  const q=Math.min(3,Math.floor(4*(month-windows[w][0])/(windows[w][1]-windows[w][0]+1))),src=A.src[i],h=src<3?src*12+(+M.months[month].slice(5)-1):-1,t=totals[w];t.n++;t.q[q]++;if(src<3)t.src[src]++;if(h>=0)t.strata[h]++;if(A.flags[i]&1)t.inferred++;if(A.isco[i]===255)t.unclassified++;
   const ids=new Set();
   if(kind==='title'){if(lookup.has(A.title[i]))ids.add(A.title[i]);}
   else if(kind==='degree'){if(A.edu[i]&7)ids.add('degree');}
@@ -367,7 +368,7 @@ function qualifications(F,preset){const {a,b}=comparisonWindows(F,preset);const 
  // Complementary suppression prevents recovery from marginal totals.
  const suppress=xs=>{const a=xs.map(countSafe);if(a.filter(x=>x===null).length===1){const candidates=xs.map((n,i)=>({n,i})).filter(x=>a[x.i]!==null&&x.n>0).sort((a,b)=>a.n-b.n);if(candidates[0])a[candidates[0].i]=null;}return a;};
  return {a,b,periods:out.map(t=>{t.values.sort((a,b)=>a-b);const n=t.values.length,quartiles=n>=100?[.25,.5,.75].map(q=>t.values[Math.floor((n-1)*q)]):null;const smallEducation=t.highest.some(v=>v>0&&v<10)||t.mentions.some(v=>v>0&&v<10);return {n:t.n,stated:countSafe(t.stated),experienceStated:countSafe(n),quartiles,highest:smallEducation?t.highest.map(()=>null):t.highest,mentions:smallEducation?t.mentions.map(()=>null):t.mentions,experience:suppress(t.experience),cross:t.cross.map(suppress)};}),certifications:F.types&&F.types.length&&!F.types.includes(3)?[]:evidence({...F,types:[3]},preset).rows,degree:evidence(F,preset,'degree')};}
-function monitor(F,preset){return M.isco.map((g,id)=>({id,...evidence({...F,isco:F.isco&&!F.isco.includes(id)?[-1]:[id]},preset,'families')})).filter(r=>r.na||r.nb).sort((a,b)=>{const ra=a.rows.find(r=>r.id==='advanced'),rb=b.rows.find(r=>r.id==='advanced'),va=a.common&&ra?.status==='Provisional',vb=b.common&&rb?.status==='Provisional';return Number(vb)-Number(va)||(va&&vb?Math.abs(rb.d||0)-Math.abs(ra.d||0):a.id-b.id);});}
+function monitor(F,preset){return M.isco.map((g,id)=>({id,...evidence({...F,isco:F.isco&&!F.isco.includes(id)?[-1]:[id]},preset,'families')})).filter(r=>r.na||r.nb).sort((a,b)=>{const ra=a.rows.find(r=>r.id==='advanced'),rb=b.rows.find(r=>r.id==='advanced'),ok=s=>s==='Provisional'||s==='Stronger evidence',va=a.common&&ok(ra?.status),vb=b.common&&ok(rb?.status);return Number(vb)-Number(va)||(va&&vb?Math.abs(rb.d||0)-Math.abs(ra.d||0):a.id-b.id);});}
 function monthlySeries(F,target){F=releaseFilter(F);const keep=match(F),tot=Array(M.months.length).fill(0),hits=tot.slice();const family=target.kind==='family'?specsFor('families').find(s=>s.id===target.id):null;
  for(let i=0;i<N;i++){if(!keep[i])continue;const m=A.month[i];tot[m]++;let hit=false;if(target.kind==='title')hit=A.title[i]===target.id;else for(let p=OFF[i];p<OFF[i+1];p++)if(postingOk(p,F)&&(family?family.ids.has(SK[p]):SK[p]===target.id)){hit=true;break;}if(hit)hits[m]++;}
  return {months:M.months.slice(F.m0,F.m1+1),tot:tot.slice(F.m0,F.m1+1).map(countSafe),hits:hits.slice(F.m0,F.m1+1).map(countSafe),share:hits.slice(F.m0,F.m1+1).map((c,j)=>tot[j+F.m0]>=30&&countSafe(c)!==null?c/tot[j+F.m0]:null)};

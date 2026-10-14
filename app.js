@@ -21,6 +21,16 @@ const S = { m0: 0, m1: 0, major: "", isco: "", emi: "", ind: "", type: "", where
 const T = () => window.I18N[lang];
 const fmt = (n) => (n == null ? "–" : Number(n).toLocaleString(lang === "ar" ? "ar-AE" : "en-US"));
 const pct = (x, d = 1) => (x * 100).toFixed(d) + "%";
+/* earlier → recent: the arrow follows the reading direction */
+function arrow() { return lang === "ar" ? "←" : "→"; }
+// isolated in the reading direction, so it also reads correctly inside left-to-right chart tooltips
+const fromTo = (a, b) => `<bdi dir="${lang === "ar" ? "rtl" : "ltr"}"><bdi>${a}</bdi> ${arrow()} <bdi>${b}</bdi></bdi>`;
+/* small cells: counts 1–9 are never shown, nor shares that would reveal them */
+const tiny = (c) => c > 0 && c < 10;
+const fmtC = (c) => (tiny(c) ? "<10" : fmt(c));
+const pctC = (x, c, d = 1) => (tiny(c) ? "—" : pct(x, d));
+/* signed percentage-point change; no sign when it rounds to zero */
+function ppTxt(d, dec = 1) { const s = Math.abs(d).toFixed(dec); return +s === 0 ? s : (d > 0 ? "+" : "-") + s; }
 const ym = (i) => META.months[i];
 const ymLabel = (i) => { const [y, m] = ym(i).split("-"); return new Date(+y, +m - 1, 1).toLocaleDateString(lang === "ar" ? "ar-AE" : "en-GB", { month: "short", year: "numeric" }); };
 const narrow = () => innerWidth < 640;
@@ -82,8 +92,9 @@ function table(key, head, rows) {
   TABLES[key] = [head, rows];
   if (!$("#tbl-" + key)) return;
   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
-  const cell = (v) => window.skillLink ? window.skillLink(v) : esc(v);
-  $("#tbl-" + key).innerHTML = `<table class="data"><thead><tr>${head.map((h) => `<th>${cell(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td class="${i ? "n" : ""}">${cell(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
+  // only the first column holds skill names: headers and other cells stay plain text
+  const cell = (v, i) => (!i && window.skillLink ? window.skillLink(v) : esc(v));
+  $("#tbl-" + key).innerHTML = `<table class="data"><thead><tr>${head.map((h) => `<th>${esc(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td class="${i ? "n" : ""}">${cell(c, i)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
 }
 function downloadCsv(key) {
   const [head, rows] = TABLES[key] || [[], []];
@@ -332,23 +343,24 @@ async function drawShift() {
              axisLabel: { ...axisStyle(p).axisLabel, formatter: (v) => (v > 0 ? "+" : "") + v + (nar ? "" : (lang === "ar" ? " نقطة" : " pp")) } },
     yAxis: catAxis(p, rows.map((r) => r.name), labelW()),
     tooltip: { ...base().tooltip, trigger: "axis", axisPointer: { type: "shadow" },
-      formatter: (ps) => { const r = rows[ps[0].dataIndex]; return `<b>${r.name}</b><br>${pct(r.a)} → ${pct(r.b)} <b>${r.d >= 0 ? "+" : ""}${(r.d * 100).toFixed(1)} pp</b><br><small>${fmt(r.ca)} / ${fmt(r.cb)} ${t.ads}</small>`; } },
+      formatter: (ps) => { const r = rows[ps[0].dataIndex]; return `<b>${r.name}</b><br>${fromTo(pctC(r.a, r.ca), pctC(r.b, r.cb))} <b><bdi>${ppTxt(r.d * 100)}</bdi> ${lang === "ar" ? "نقطة مئوية" : "pp"}</b><br><small><bdi>${fmtC(r.ca)} / ${fmtC(r.cb)}</bdi> ${t.ads}</small>`; } },
     series: [{ type: "bar", barWidth: "58%",
       data: rows.map((r) => ({ value: +(r.d * 100).toFixed(2), itemStyle: { color: r.d >= 0 ? p.up : p.down, borderRadius: r.d >= 0 ? [0, 3, 3, 0] : [3, 0, 0, 3] } })),
       label: { show: true, position: "right", distance: 0, color: p.ink3, fontFamily: p.mono, fontSize: 12,
-        formatter: (d) => { const r = rows[d.dataIndex]; return nar ? `${d.value > 0 ? "+" : ""}${d.value.toFixed(1)}` : `{v|${d.value > 0 ? "+" : ""}${d.value.toFixed(1)}}  ${pct(r.a, 0)} → ${pct(r.b, 0)}`; },
+        // the chart canvas is drawn left to right: in Arabic the recent share sits on the left so "←" reads earlier ← recent
+        formatter: (d) => { const r = rows[d.dataIndex], A = pctC(r.a, r.ca), B = pctC(r.b, r.cb); return nar ? ppTxt(d.value) : `{v|${ppTxt(d.value)}}  ${lang === "ar" ? `${B} ${arrow()} ${A}` : `${A} ${arrow()} ${B}`}`; },
         rich: { v: { color: p.ink, fontFamily: p.mono, fontSize: 12, fontWeight: 600 } } },
       labelLayout: (params) => ({ x: (chart("chShift").getWidth() - (nar ? 50 : 146)), align: "left" }),
       markLine: { symbol: "none", silent: true, label: { show: false }, lineStyle: { color: p.ink3, type: "solid", width: 1 }, data: [{ xAxis: 0 }] } }] }, true);
   $("#shiftN").textContent = t.nab(fmt(SH.na), fmt(SH.nb));
   $("#shiftFoot").textContent = SH.na < 500 || SH.nb < 500 ? t.small : "";
-  table("shift", [t.skill, winLabel(a), winLabel(b), lang === "ar" ? "التغير (نقطة مئوية)" : "Δ pp"], rows.map((r) => [r.name, pct(r.a), pct(r.b), (r.d * 100).toFixed(1)]));
+  table("shift", [t.skill, winLabel(a), winLabel(b), lang === "ar" ? "التغير (نقطة مئوية)" : "Δ pp"], rows.map((r) => [r.name, pctC(r.a, r.ca), pctC(r.b, r.cb), ppTxt(r.d * 100)]));
   const plain = !S.major && S.isco === "" && S.emi === "" && S.type === "";
   const gain = SH.up.find((r) => r.d > 0);
   if (S.shiftWin === "trend" && gain && plain && SH.na >= 300 && SH.nb >= 300) {
     const r = gain;
     $("#finding").hidden = false;
-    $("#findingText").textContent = t.finding(r.name, pct(r.a), pct(r.b), winLabel(a), winLabel(b), (r.d * 100).toFixed(1));
+    $("#findingText").textContent = t.finding(r.name, pctC(r.a, r.ca), pctC(r.b, r.cb), winLabel(a), winLabel(b), (r.d * 100).toFixed(1));
     $("#findingNote").textContent = t.findingNote;
   }
 }
@@ -387,8 +399,10 @@ async function drawTimeline() {
     return n >= 30 && m * 2 > W ? +(100 * h / n).toFixed(2) : null;
   });
   const cols = SERIES();
+  // display names (product casing, Arabic in the Arabic view); skills.js maps them back to the skill id on click
+  const sname = (s) => (window.skillLabel ? window.skillLabel(META.skills[s][0]) : META.skills[s][0]);
   const series = ids.map((s, k) => ({
-    name: META.skills[s][0], type: "line", smooth: 0.3, symbol: "none", connectNulls: false,
+    name: sname(s), type: "line", smooth: 0.3, symbol: "none", connectNulls: false,
     lineStyle: { width: k === 0 ? 2.8 : 2, color: cols[k] }, itemStyle: { color: cols[k] }, emphasis: { focus: "series" },
     endLabel: { show: !nar, formatter: (d) => d.seriesName, color: cols[k], fontFamily: p.font, fontSize: 12.5, fontWeight: 600, distance: 8 },
     labelLayout: { moveOverlap: "shiftY" },
@@ -397,7 +411,7 @@ async function drawTimeline() {
   }));
   series.push({ name: t.volLabel, type: "bar", xAxisIndex: 1, yAxisIndex: 1, data: tr.tot.slice(m0, m1 + 1), itemStyle: { color: p.na }, barCategoryGap: "12%" });
   chart("chTimeline").setOption({ ...base(),
-    legend: { show: nar, top: 0, left: 0, textStyle: { color: p.ink2, fontFamily: p.font, fontSize: 12 }, icon: "roundRect", itemWidth: 14, itemHeight: 4, data: ids.map((s) => META.skills[s][0]) },
+    legend: { show: nar, top: 0, left: 0, textStyle: { color: p.ink2, fontFamily: p.font, fontSize: 12 }, icon: "roundRect", itemWidth: 14, itemHeight: 4, data: ids.map(sname) },
     title: { text: t.volLabel, left: 56, top: nar ? "73%" : "75%", textStyle: { fontSize: 12, color: p.ink3, fontWeight: 500, fontFamily: p.font } },
     grid: [{ left: 56, right: nar ? 16 : 150, top: nar ? 52 : 34, height: nar ? "50%" : "58%" }, { left: 56, right: nar ? 16 : 150, top: nar ? "79%" : "80%", height: "11%" }],
     xAxis: [{ type: "category", data: xs, ...axisStyle(p), axisLabel: { show: false } }, { type: "category", gridIndex: 1, data: xs, ...axisStyle(p), axisLabel: yearTicks(p) }],
@@ -407,7 +421,7 @@ async function drawTimeline() {
     axisPointer: { link: [{ xAxisIndex: "all" }] },
     series }, true);
   $("#tlFoot").textContent = t.partial(ymLabel(LAST));
-  table("timeline", [t.month, ...ids.map((s) => META.skills[s][0]), t.ads], xs.map((x, i) => [x, ...series.slice(0, ids.length).map((sr) => (sr.data[i] == null ? "" : sr.data[i])), tr.tot[m0 + i]]));
+  table("timeline", [t.month, ...ids.map(sname), t.ads], xs.map((x, i) => [x, ...series.slice(0, ids.length).map((sr) => (sr.data[i] == null ? "" : sr.data[i])), tr.tot[m0 + i]]));
 }
 
 async function drawTop() {
