@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500&display=swap">
-<link rel="stylesheet" href="app.css?v=10142151">
+<link rel="stylesheet" href="app.css?v=10142240">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
 </head>
 <body>
@@ -180,17 +180,20 @@
       <div class="method">
         <div><h4 data-i18n="r1h">Where the advertisements come from</h4>
           <p class="small" data-i18n="r1p"></p>
-          <div class="tablewrap" id="srcTable"></div></div>
+          <div class="tablewrap" id="srcTable"></div>
+          <h4 class="en-only">Advertisements per year and archive</h4><p class="small en-only">The sample behind every trend. Web Data Commons releases stop at 2024, so 2025–2026 come from the Internet Archive and Common Crawl; changes in this mix can affect comparisons between periods. The last year is partial.</p>
+          <h4 class="ar-only">الإعلانات حسب السنة والأرشيف</h4><p class="small ar-only">العينة التي يقوم عليها كل اتجاه. تتوقف إصدارات Web Data Commons عند 2024، لذا تأتي بيانات 2025–2026 من أرشيف الإنترنت وCommon Crawl؛ وقد يؤثر تغيّر هذا المزيج في المقارنات بين الفترات. السنة الأخيرة جزئية.</p>
+          <div class="tablewrap" id="covTable"></div></div>
         <div><h4 data-i18n="r2h">Data archives</h4>
           <ul class="reflist en-only">
             <li><a href="https://web.archive.org/" target="_blank" rel="noopener">Internet Archive, Wayback Machine</a>: archived copies of public UAE job advertisements (CDX API).</li>
             <li><a href="https://commoncrawl.org/" target="_blank" rel="noopener">Common Crawl</a>: web crawl archive (CC-MAIN indexes, WARC records).</li>
-            <li><a href="https://webdatacommons.org/structureddata/" target="_blank" rel="noopener">Web Data Commons</a>: schema.org <i>JobPosting</i> extractions, 2018–2024.</li>
+            <li><a href="https://webdatacommons.org/structureddata/" target="_blank" rel="noopener">Web Data Commons</a>: schema.org <i>JobPosting</i> extractions, 2018–2024 (its releases stop at 2024).</li>
           </ul>
           <ul class="reflist ar-only">
             <li><a href="https://web.archive.org/" target="_blank" rel="noopener">أرشيف الإنترنت (Wayback Machine)</a>: نسخ مؤرشفة من إعلانات الوظائف العامة في الإمارات.</li>
             <li><a href="https://commoncrawl.org/" target="_blank" rel="noopener">Common Crawl</a>: أرشيف زحف الويب.</li>
-            <li><a href="https://webdatacommons.org/structureddata/" target="_blank" rel="noopener">Web Data Commons</a>: بيانات الوظائف المنظمة (JobPosting) للأعوام 2018–2024.</li>
+            <li><a href="https://webdatacommons.org/structureddata/" target="_blank" rel="noopener">Web Data Commons</a>: بيانات الوظائف المنظمة (JobPosting) للأعوام 2018–2024 (تتوقف إصداراته عند 2024).</li>
           </ul>
           <p class="small en-only">All advertisements come from three public research archives (Internet Archive, Common Crawl, Web Data Commons), which permit download for research. Only derived, aggregated results are published; no advertisement text is reproduced.</p>
           <p class="small ar-only">جميع الإعلانات مأخوذة من ثلاثة أرشيفات بحثية عامة (أرشيف الإنترنت وCommon Crawl وWeb Data Commons) تسمح بالتنزيل لأغراض البحث. تُنشر النتائج المشتقة والمجمّعة فقط، ولا يُعاد نشر أي نص إعلان.</p>
@@ -238,6 +241,24 @@
       by.map(([k, v]) => `<tr><td>${label(k)}</td><td class="n">${v.toLocaleString("en-US")}</td><td class="n">${(100 * v / tot).toFixed(1)}%</td></tr>`).join("")}</tbody></table>`;
   }
   fillSources();
+
+  /* advertisements per year and archive: the sample size behind every trend */
+  function fillCoverage() {
+    const M = window.OBS && window.OBS.meta, el = document.getElementById("covTable");
+    if (!M || !el) return setTimeout(fillCoverage, 500);
+    const t = M.coverage.by_year_archive || {}, ar = lang === "ar";
+    const lab = { internet_archive: ar ? "أرشيف الإنترنت" : "Internet Archive", common_crawl: "Common Crawl", web_data_commons: "Web Data Commons" };
+    const keys = M.sources.filter((k) => lab[k]);
+    const last = M.coverage.last_month || "";
+    const rows = Object.keys(t).sort().map((y) => {
+      const tot = keys.reduce((s, k) => s + (t[y][k] || 0), 0);
+      const yl = y === last.slice(0, 4) && last.slice(5) !== "12" ? `${y} (${ar ? "حتى" : "to"} ${last})` : y;
+      return `<tr><td>${yl}</td>${keys.map((k) => `<td class="n">${(t[y][k] || 0).toLocaleString("en-US")}</td>`).join("")}<td class="n"><b>${tot.toLocaleString("en-US")}</b></td></tr>`;
+    }).join("");
+    el.innerHTML = `<table class="data"><thead><tr><th>${ar ? "السنة" : "Year"}</th>${keys.map((k) => `<th>${lab[k]}</th>`).join("")}<th>${ar ? "المجموع" : "Total"}</th></tr></thead><tbody>${rows}</tbody></table>`;
+  }
+  fillCoverage();
+  new MutationObserver(() => fillCoverage()).observe(document.documentElement, { attributes: true, attributeFilter: ["lang"] });
   new MutationObserver(() => fillSources())
     .observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
   </script>
@@ -252,12 +273,12 @@
   <form class="ask" id="askForm"><input id="askInput" autocomplete="off" placeholder="e.g. What does a data analyst need in 2025?"><button class="btn primary" type="submit" data-i18n="send">Ask</button></form>
 </aside>
 
-<script src="config.js?v=10142151"></script>
-<script src="i18n.js?v=10142151"></script>
-<script src="chat.js?v=10142151"></script>
-<script src="app.js?v=10142151"></script>
-<script src="skills.js?v=10142151"></script>
-<script src="briefing.js?v=10142151"></script>
-<script src="growth.js?v=10142151"></script>
+<script src="config.js?v=10142240"></script>
+<script src="i18n.js?v=10142240"></script>
+<script src="chat.js?v=10142240"></script>
+<script src="app.js?v=10142240"></script>
+<script src="skills.js?v=10142240"></script>
+<script src="briefing.js?v=10142240"></script>
+<script src="growth.js?v=10142240"></script>
 </body>
 </html>
