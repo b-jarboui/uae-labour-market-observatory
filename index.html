@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500&display=swap">
-<link rel="stylesheet" href="app.css?v=10142114">
+<link rel="stylesheet" href="app.css?v=10142151">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
 </head>
 <body>
@@ -192,8 +192,8 @@
             <li><a href="https://commoncrawl.org/" target="_blank" rel="noopener">Common Crawl</a>: أرشيف زحف الويب.</li>
             <li><a href="https://webdatacommons.org/structureddata/" target="_blank" rel="noopener">Web Data Commons</a>: بيانات الوظائف المنظمة (JobPosting) للأعوام 2018–2024.</li>
           </ul>
-          <p class="small en-only">Advertisements were collected from publicly available sources, principally the public research archives above, which permit download for research. The dashboard publishes only derived, aggregated results (counts, shares, skill categories); no advertisement text is reproduced.</p>
-          <p class="small ar-only">جُمعت الإعلانات من مصادر متاحة للعموم، أساساً من الأرشيفات البحثية العامة أعلاه التي تسمح بالتنزيل لأغراض البحث العلمي. يعرض المرصد نتائج مشتقة ومجمّعة فقط (أعداد ونسب وفئات مهارات)، ولا يعيد نشر أي نص إعلان.</p>
+          <p class="small en-only">All advertisements come from three public research archives (Internet Archive, Common Crawl, Web Data Commons), which permit download for research. Only derived, aggregated results are published; no advertisement text is reproduced.</p>
+          <p class="small ar-only">جميع الإعلانات مأخوذة من ثلاثة أرشيفات بحثية عامة (أرشيف الإنترنت وCommon Crawl وWeb Data Commons) تسمح بالتنزيل لأغراض البحث. تُنشر النتائج المشتقة والمجمّعة فقط، ولا يُعاد نشر أي نص إعلان.</p>
           <h4 data-i18n="r3h">Classifications</h4>
           <ul class="reflist en-only">
             <li><a href="https://www.ilo.org/public/english/bureau/stat/isco/isco08/" target="_blank" rel="noopener">ISCO-08</a>, International Standard Classification of Occupations (ILO), sub-major groups.</li>
@@ -230,7 +230,7 @@
     if (!M) return setTimeout(fillSources, 500);
     const names = { internet_archive: ["Internet Archive (Wayback Machine)", "أرشيف الإنترنت (Wayback Machine)"],
       common_crawl: ["Common Crawl", "Common Crawl"], web_data_commons: ["Web Data Commons", "Web Data Commons"],
-      other_public: ["Other public sources", "مصادر عامة أخرى"] };
+      other_public: ["", ""] };
     const by = Object.entries(M.coverage.by_source || {}).filter(([k]) => names[k]).sort((a, b) => b[1] - a[1]);
     const tot = by.reduce((s, [, v]) => s + v, 0);
     const label = (k) => names[k][lang === "ar" ? 1 : 0];
@@ -252,12 +252,12 @@
   <form class="ask" id="askForm"><input id="askInput" autocomplete="off" placeholder="e.g. What does a data analyst need in 2025?"><button class="btn primary" type="submit" data-i18n="send">Ask</button></form>
 </aside>
 
-<script src="config.js?v=10142114"></script>
-<script src="i18n.js?v=10142114"></script>
-<script src="chat.js?v=10142114"></script>
-<script src="app.js?v=10142114"></script>
-<script src="skills.js?v=10142114"></script>
-<script src="briefing.js?v=10142114"></script>
-<script src="growth.js?v=10142114"></script>
+<script src="config.js?v=10142151"></script>
+<script src="i18n.js?v=10142151"></script>
+<script src="chat.js?v=10142151"></script>
+<script src="app.js?v=10142151"></script>
+<script src="skills.js?v=10142151"></script>
+<script src="briefing.js?v=10142151"></script>
+<script src="growth.js?v=10142151"></script>
 </body>
 </html>

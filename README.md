@@ -6,7 +6,7 @@ What UAE employers asked for in job advertisements, 2018–2026: skills, qualifi
 **Live dashboard:** https://b-jarboui.github.io/uae-labour-market-observatory/ (English / العربية)
 
 ## Data sources
-Advertisements were collected from publicly available sources, principally public research archives that permit download for research purposes:
+All advertisements come from three public research archives that permit download for research purposes:
 - [Internet Archive, Wayback Machine](https://web.archive.org/): archived copies of public UAE job advertisements.
 - [Common Crawl](https://commoncrawl.org/): open web crawl archive.
 - [Web Data Commons](https://webdatacommons.org/structureddata/): schema.org JobPosting extractions, 2018–2024.
