@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Serif:wght@500&display=swap">
-<link rel="stylesheet" href="app.css?v=10142240">
+<link rel="stylesheet" href="app.css?v=10142350">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/echarts/5.5.0/echarts.min.js"></script>
 </head>
 <body>
@@ -27,7 +27,7 @@
     <div class="tools">
       <button class="btn" id="langBtn" type="button">العربية</button>
       <button class="btn" id="themeBtn" type="button" aria-label="Switch theme">◐</button>
-      <button class="btn primary" id="askBtn" type="button" data-i18n="ask">Ask about a job</button>
+      <button class="btn primary" id="askBtn" type="button" data-i18n="ask" hidden>Ask about a job</button>
     </div>
   </div>
 </header>
@@ -195,8 +195,10 @@
             <li><a href="https://commoncrawl.org/" target="_blank" rel="noopener">Common Crawl</a>: أرشيف زحف الويب.</li>
             <li><a href="https://webdatacommons.org/structureddata/" target="_blank" rel="noopener">Web Data Commons</a>: بيانات الوظائف المنظمة (JobPosting) للأعوام 2018–2024 (تتوقف إصداراته عند 2024).</li>
           </ul>
-          <p class="small en-only">All advertisements come from three public research archives (Internet Archive, Common Crawl, Web Data Commons), which permit download for research. Only derived, aggregated results are published; no advertisement text is reproduced.</p>
-          <p class="small ar-only">جميع الإعلانات مأخوذة من ثلاثة أرشيفات بحثية عامة (أرشيف الإنترنت وCommon Crawl وWeb Data Commons) تسمح بالتنزيل لأغراض البحث. تُنشر النتائج المشتقة والمجمّعة فقط، ولا يُعاد نشر أي نص إعلان.</p>
+          <p class="small en-only">All advertisements come from three public research archives (Internet Archive, Common Crawl, Web Data Commons), which permit download for research. Only derived, anonymised data are published: one coded row per advertisement (month, occupation group, industry, emirate, degree level, experience, skill codes) and aggregates; no advertisement text, URL or employer name is reproduced.</p>
+          <p class="small ar-only">جميع الإعلانات مأخوذة من ثلاثة أرشيفات بحثية عامة (أرشيف الإنترنت وCommon Crawl وWeb Data Commons) تسمح بالتنزيل لأغراض البحث. تُنشر بيانات مشتقة ومجهولة الهوية فقط: صف مُرمَّز لكل إعلان (الشهر والمجموعة المهنية والقطاع والإمارة والمستوى التعليمي والخبرة ورموز المهارات) ونتائج مجمّعة؛ ولا يُعاد نشر أي نص إعلان أو رابط أو اسم صاحب عمل.</p>
+          <h4 class="en-only">Validation (independent review of 300 advertisements)</h4><ul class="reflist en-only"><li>Skills: 92% of extracted skills confirmed by reviewers on advertisements read in full; about 2.6 secondary skills per advertisement are not captured.</li><li>Degree level: 85% exact agreement.</li><li>Employer industry: 62% agreement where the employer can be identified (51 of 300 advertisements do not identify it). Industry results are indicative; most differences are between neighbouring sectors (e.g. engineering consultancy vs construction).</li><li>Sample stratified by year and archive; reviewers were blind to the industry labels.</li></ul>
+          <h4 class="ar-only">التحقق (مراجعة مستقلة لـ 300 إعلاناً)</h4><ul class="reflist ar-only"><li>المهارات: أكّد المراجعون 92% من المهارات المستخرجة في الإعلانات المقروءة كاملة؛ ولا تُلتقط نحو 2.6 مهارة ثانوية لكل إعلان.</li><li>المستوى التعليمي: تطابق تام بنسبة 85%.</li><li>قطاع صاحب العمل: اتفاق بنسبة 62% حيث يمكن تحديد صاحب العمل (51 من 300 إعلاناً لا تحدده). نتائج القطاع استرشادية؛ ومعظم الاختلافات بين قطاعات متجاورة (مثل الاستشارات الهندسية مقابل التشييد).</li><li>عينة طبقية حسب السنة والأرشيف؛ ولم يطّلع المراجعون على تصنيفات القطاع.</li></ul>
           <h4 data-i18n="r3h">Classifications</h4>
           <ul class="reflist en-only">
             <li><a href="https://www.ilo.org/public/english/bureau/stat/isco/isco08/" target="_blank" rel="noopener">ISCO-08</a>, International Standard Classification of Occupations (ILO), sub-major groups.</li>
@@ -273,12 +275,14 @@
   <form class="ask" id="askForm"><input id="askInput" autocomplete="off" placeholder="e.g. What does a data analyst need in 2025?"><button class="btn primary" type="submit" data-i18n="send">Ask</button></form>
 </aside>
 
-<script src="config.js?v=10142240"></script>
-<script src="i18n.js?v=10142240"></script>
-<script src="chat.js?v=10142240"></script>
-<script src="app.js?v=10142240"></script>
-<script src="skills.js?v=10142240"></script>
-<script src="briefing.js?v=10142240"></script>
-<script src="growth.js?v=10142240"></script>
+<script src="config.js?v=10142350"></script>
+<script src="i18n.js?v=10142350"></script>
+<script src="chat.js?v=10142350"></script>
+<script src="app.js?v=10142350"></script>
+<script src="skills.js?v=10142350"></script>
+<script src="briefing.js?v=10142350"></script>
+<script src="growth.js?v=10142350"></script>
+<script src="modules.js?v=10142350"></script>
+<script src="fields.js?v=10142350"></script>
 </body>
 </html>

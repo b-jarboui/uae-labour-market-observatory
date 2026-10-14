@@ -19,8 +19,14 @@ async function load(base) {
     A.edu[i] = v.getUint8(o + 4); A.yrs[i] = v.getUint8(o + 5); A.flags[i] = v.getUint8(o + 6); A.ind[i] = v.getUint8(o + 7);
     A.title[i] = v.getUint16(o + 8, true);
   }
+  FOS = await get("fields.bin").then((r) => (r.ok ? r.arrayBuffer() : null)).then((b) => (b ? new Uint32Array(b) : null)).catch(() => null);
   OFF = new Uint32Array(off); SK = new Uint16Array(sk); SF = new Uint8Array(sf);
+  if (ads.byteLength % REC || OFF.length !== N + 1 || OFF[0] !== 0 || OFF[N] !== SK.length || SF.length !== SK.length) throw new Error('Data pack arrays are inconsistent; reload after the pack build finishes.');
+  for (let i=0;i<N;i++) if (OFF[i]>OFF[i+1] || A.ind[i]!==255 && A.ind[i]>=M.industries.length) throw new Error('Data pack offsets or industry codes are invalid.');
   NS = M.skills.length;
+  DIGITAL = await (await get("digital_taxonomy.json")).json();
+  if (DIGITAL.entries.some(e=>M.skills[e.id]?.[0]!==e.canonical)) throw new Error('Digital taxonomy IDs do not match this data pack. Rebuild the reviewed exact-match list.');
+  M.layout.fields[7]='industry';
   return { meta: M, n: N };
 }
 
@@ -53,6 +59,7 @@ function match(F) {
 
 function postingOk(p, F) {
   const f = SF[p];
+  if (EXCLUDED_SKILLS.has(M.skills[SK[p]][0])) return false;
   if (F.req === "required" && (f & 1)) return false;
   if (F.req === "preferred" && !(f & 1)) return false;
   if (F.where === "requirements" && (f & 2)) return false;
@@ -72,7 +79,8 @@ function skillCounts(keep, F, onlyMonths) {
     if (!keep[i]) continue;
     if (onlyMonths && (A.month[i] < onlyMonths[0] || A.month[i] > onlyMonths[1])) continue;
     n++;
-    for (let p = OFF[i]; p < OFF[i + 1]; p++) if (postingOk(p, F)) c[SK[p]]++;
+    const seen = new Set();
+    for (let p = OFF[i]; p < OFF[i + 1]; p++) if (postingOk(p, F) && !seen.has(SK[p])) { c[SK[p]]++; seen.add(SK[p]); }
   }
   return { c, n };
 }
@@ -255,6 +263,12 @@ onmessage = async (e) => {
   try {
     let r;
     if (op === "load") r = await load(args.base);
+    else if (op === "evidence") r = evidence(args.F,args.preset,args.kind,args.ids);
+    else if (op === "qualifications3") r = qualifications(args.F,args.preset);
+    else if (op === "fields") r = fieldsOfStudy(args.F, args.preset);
+    else if (op === "monitor3") r = monitor(args.F,args.preset);
+    else if (op === "projection") r = projection(args.F,args.target);
+    else if (op === "monthly3") r = monthlySeries(args.F,args.target);
     else if (op === "overview") r = overview(args.F);
     else if (op === "growth") r = growth(args.F,args.a,args.b);
     else if (op === "trend") r = skillTrend(args.F, args.ids);
@@ -270,3 +284,105 @@ onmessage = async (e) => {
     postMessage({ id, ok: false, err: String(err && err.message || err) });
   }
 };
+
+/* Round 3 evidence contract v1. All prevalence numerators are per-ad unions. */
+let DIGITAL=null;
+const EVIDENCE_VERSION='r3.1';
+const EXCLUDED_SKILLS=new Set(['cv','visa','computer','people','product','sales executive','sales manager','sales engineering','it support']);
+const countSafe=n=>n>0&&n<10?null:n;
+const safePartition=values=>values.some(n=>n>0&&n<10)?values.map(()=>null):values;
+function wilson(c,n){if(!n||countSafe(c)===null)return null;const z=1.96,p=c/n,d=1+z*z/n,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n));return [(p+z*z/(2*n)-h)/d,(p+z*z/(2*n)+h)/d];}
+function releaseFilter(F){const end=M.months.indexOf('2026-09');return {...F,skill:null,m0:Math.max(M.months.indexOf('2018-01'),F.m0??0),m1:Math.min(end,F.m1??end)};}
+function comparisonWindows(F,preset){const end=releaseFilter(F).m1;return preset==='ytd'?{a:[end-20,end-12],b:[end-8,end]}:{a:[end-23,end-12],b:[end-11,end]};}
+function specsFor(kind){
+ if(kind==='titles')return M.titles.map((name,id)=>({id,name,kind:'title'}));
+ if(kind==='families')return ['ai','advanced','basic'].map(name=>({id:name,name,kind:'family',ids:new Set(DIGITAL.entries.filter(e=>name==='ai'?['ai_development','applied_ai'].includes(e.category):name==='basic'?e.category==='basic':e.category!=='basic').map(e=>e.id))}));
+ if(kind==='degree')return [{id:'degree',name:'Degree mentions',kind:'degree'}];
+ return M.skills.map((s,id)=>({id,name:s[0],type:s[1],kind:'skill'})).filter(s=>!EXCLUDED_SKILLS.has(s.name));
+}
+function collectEvidence(F,a,b,specs){
+ const windows=[a,b],keep=match({...releaseFilter(F),m0:Math.max(releaseFilter(F).m0,a[0]),m1:Math.min(releaseFilter(F).m1,b[1])});
+ const blank=()=>({n:0,strata:Array(36).fill(0),q:Array(4).fill(0),src:Array(3).fill(0),inferred:0,unclassified:0});
+ const totals=[blank(),blank()], rows=new Map(),lookup=new Map(specs.map(s=>[s.id,s]));
+ const kind=specs[0]?.kind;
+ const familyMap=new Map();if(kind==='family')for(const s of specs)for(const id of s.ids){if(!familyMap.has(id))familyMap.set(id,[]);familyMap.get(id).push(s.id);}
+ for(let i=0;i<N;i++){
+  if(!keep[i])continue;const month=A.month[i],w=month>=a[0]&&month<=a[1]?0:month>=b[0]&&month<=b[1]?1:-1;if(w<0)continue;
+  const q=Math.min(3,Math.floor((month-windows[w][0])/3)),src=A.src[i],h=src<3?src*12+(+M.months[month].slice(5)-1):-1,t=totals[w];t.n++;t.q[q]++;if(src<3)t.src[src]++;if(h>=0)t.strata[h]++;if(A.flags[i]&1)t.inferred++;if(A.isco[i]===255)t.unclassified++;
+  const ids=new Set();
+  if(kind==='title'){if(lookup.has(A.title[i]))ids.add(A.title[i]);}
+  else if(kind==='degree'){if(A.edu[i]&7)ids.add('degree');}
+  else for(let p=OFF[i];p<OFF[i+1];p++){if(!postingOk(p,F))continue;const id=SK[p];if(kind==='family'){for(const k of familyMap.get(id)||[])ids.add(k);}else if(lookup.has(id))ids.add(id);}
+  for(const id of ids){if(!rows.has(id))rows.set(id,{...lookup.get(id),hits:[blank(),blank()]});const t=rows.get(id).hits[w];t.n++;t.q[q]++;if(src<3)t.src[src]++;if(h>=0)t.strata[h]++;}
+ }
+ const retained=totals.map(()=>0),strata=[];let pooled=0;
+ for(let h=0;h<36;h++)if(totals[0].strata[h]>=20&&totals[1].strata[h]>=20){strata.push(h);pooled+=totals[0].strata[h]+totals[1].strata[h];for(let w=0;w<2;w++)retained[w]+=totals[w].strata[h];}
+ // adjusted estimate on the archive x month strata present in BOTH periods (Web Data Commons stops in 2024, so recent
+ // comparisons rely on the archives common to both windows); only below 40% retention is a comparison coverage-limited
+ const retention=retained.map((n,w)=>totals[w].n?n/totals[w].n:0),common=retention.every(x=>x>=.4);
+ const result=[];
+ for(const r of rows.values()){
+  const [ca,cb]=r.hits.map(t=>t.n),[na,nb]=totals.map(t=>t.n),pa=na?ca/na:0,pb=nb?cb/nb:0;
+  const adj=[0,0];for(const h of strata){const weight=(totals[0].strata[h]+totals[1].strata[h])/pooled;for(let w=0;w<2;w++)adj[w]+=weight*r.hits[w].strata[h]/totals[w].strata[h];}
+  const aa=common?adj[0]:pa,bb=common?adj[1]:pb,d=bb-aa,raw=pb-pa;
+  let positive=0,negative=0,K=0;for(let q=0;q<4;q++){if(r.hits[1].q[q]>=5)positive++;if(totals.every(t=>t.q[q]>=50)){const change=r.hits[1].q[q]/totals[1].q[q]-r.hits[0].q[q]/totals[0].q[q];if(change<0)negative++;if(Math.sign(change)===Math.sign(d)&&change!==0)K++;}}
+  const volume=na>=300&&nb>=300&&Math.max(ca,cb)>=50;
+  const conflict=common&&Math.sign(raw)!==Math.sign(d)&&Math.abs(raw)>.0001&&Math.abs(d)>.0001;
+  let status=!volume?'Insufficient data':!common||conflict?'Coverage-limited':'Provisional';
+  let classification='none';if(volume&&common&&!conflict){if(aa<.005&&bb>=.01&&d>=.005&&cb>=50&&positive>=3)classification='emerging';else if(ca>=30&&cb>=50&&aa>=.005&&d>=.005&&d/aa>=.25&&positive>=3)classification='growing';else if(ca>=50&&aa>=.01&&d<=-.005&&d/aa<=-.25&&negative>=3)classification='declining';}
+  const src=totals[0].src.map((n,s)=>{const n2=totals[1].src[s],c1=r.hits[0].src[s],c2=r.hits[1].src[s];return {source:s,na:countSafe(n),nb:countSafe(n2),ca:countSafe(c1),cb:countSafe(c2),a:n&&countSafe(c1)!==null?c1/n:null,b:n2&&countSafe(c2)!==null?c2/n2:null};});
+  const loo=[];for(let s=0;s<3;s++){const hs=strata.filter(h=>Math.floor(h/12)!==s),pool=hs.reduce((sum,h)=>sum+totals[0].strata[h]+totals[1].strata[h],0);if(!pool)continue;const retainedOther=[0,1].map(w=>hs.reduce((v,h)=>v+totals[w].strata[h],0)),ns=totals.map(t=>t.n-t.src[s]);if(ns.some(n=>n<300)||retainedOther.some((n,w)=>n/ns[w]<.4))continue;let delta=0;for(const h of hs)delta+=(totals[0].strata[h]+totals[1].strata[h])/pool*(r.hits[1].strata[h]/totals[1].strata[h]-r.hits[0].strata[h]/totals[0].strata[h]);loo.push({excluded:s,d:delta});}
+  // stronger evidence (documented rule, no significance claim): raw and adjusted agree, the change persists in >=3 of 4
+  // quarters, every eligible leave-one-archive-out estimate keeps the sign, and the shift is >= 0.5 percentage point
+  if(status==='Provisional'&&K>=3&&Math.abs(d)>=.005&&Math.sign(raw)===Math.sign(d)&&loo.length&&loo.every(x=>Math.sign(x.d)===Math.sign(d)))status='Stronger evidence';
+  const hidden=countSafe(ca)===null||countSafe(cb)===null,components={M:Math.min(Math.abs(d)*100/5,1),R:Math.min(Math.max(aa,bb)/.1,1),P:K/4,C:(Math.sign(raw)===Math.sign(d)?.5:0)+(loo.length&&loo.every(x=>Math.sign(x.d)===Math.sign(d))?.5:0)};
+  result.push({id:r.id,name:r.name,type:r.type,ca:countSafe(ca),cb:countSafe(cb),a:countSafe(ca)===null||!na?null:pa,b:countSafe(cb)===null||!nb?null:pb,adjusted:common&&!hidden?adj:null,d:hidden?null:d,relative:!hidden&&ca>=30&&aa>=.005?d/aa:null,intervals:[wilson(ca,na),wilson(cb,nb)],status,classification,K,positive,negative,src:hidden||src.some(s=>s.ca===null||s.cb===null||s.na===null||s.nb===null)?[]:src,loo:hidden?[]:loo,priority:status==='Stronger evidence'&&!hidden?Math.round(100*(.4*components.M+.2*components.R+.25*components.P+.15*components.C)):null,components:hidden?null:components,rare:Math.max(ca,cb)>=10&&Math.max(ca,cb)<50});
+ }
+ result.sort((x,y)=>Math.abs(y.d??0)-Math.abs(x.d??0));
+ return {a,b,na:totals[0].n,nb:totals[1].n,retention,common,rows:result,coverage:totals.map(t=>({inferred:countSafe(t.inferred),unclassified:countSafe(t.unclassified),src:safePartition(t.src),quarters:safePartition(t.q)})),version:EVIDENCE_VERSION,taxonomy:DIGITAL?.version,limitations:['Adjusted stability intervals and multiple-testing validation pending; no statistical significance claims.','Language and employer composition unavailable.','Fixed occupation/industry/title mix checks pending.']};
+}
+function evidence(F,preset,kind='skills',ids){F=releaseFilter(F);const {a,b}=comparisonWindows(F,preset);return collectEvidence(F,a,b,specsFor(kind).filter(s=>!ids||ids.includes(s.id)));}
+let FOS = null;
+/* field of study (ISCED-F narrow fields) in the two comparison windows; shares of all ads and of ads naming a field */
+function fieldsOfStudy(F, preset) {
+  if (!FOS || !M.isced) return { available: false };
+  const { a, b } = comparisonWindows(F, preset), keep = match(releaseFilter(F)), K = M.isced.length;
+  const w = [a, b].map(() => ({ n: 0, extracted: 0, named: 0, any: 0, c: new Array(K).fill(0) }));
+  for (let i = 0; i < N; i++) {
+    if (!keep[i]) continue;
+    const m = A.month[i], k = m >= a[0] && m <= a[1] ? 0 : m >= b[0] && m <= b[1] ? 1 : -1;
+    if (k < 0) continue;
+    const t = w[k], f = FOS[i];
+    t.n++;
+    if (!(f >>> 31)) continue;
+    t.extracted++;
+    if ((f >>> 30) & 1) t.any++;
+    if (f & 0x3fffffff) t.named++;
+    for (let j = 0; j < K; j++) if ((f >>> j) & 1) t.c[j]++;
+  }
+  return { available: true, a, b, w };
+}
+function qualifications(F,preset){const {a,b}=comparisonWindows(F,preset);const keep=match(releaseFilter(F));const out=[a,b].map(()=>({n:0,stated:0,highest:Array(8).fill(0),mentions:Array(7).fill(0),experience:Array(6).fill(0),cross:Array.from({length:8},()=>Array(6).fill(0)),values:[]}));
+ for(let i=0;i<N;i++){if(!keep[i])continue;const m=A.month[i],w=m>=a[0]&&m<=a[1]?0:m>=b[0]&&m<=b[1]?1:-1;if(w<0)continue;const t=out[w],e=A.edu[i],y=A.yrs[i],order=[0,1,2,3,6,4,5],level=e?order.findIndex(bit=>e&(1<<bit))+1:0,band=y===255?5:y===0?0:y<=2?1:y<=5?2:y<=9?3:4;t.n++;if(e)t.stated++;t.highest[level]++;for(let bit=0;bit<7;bit++)if(e&(1<<bit))t.mentions[bit]++;t.experience[band]++;t.cross[level][band]++;if(y!==255)t.values.push(y);}
+ // Complementary suppression prevents recovery from marginal totals.
+ const suppress=xs=>{const a=xs.map(countSafe);if(a.filter(x=>x===null).length===1){const candidates=xs.map((n,i)=>({n,i})).filter(x=>a[x.i]!==null&&x.n>0).sort((a,b)=>a.n-b.n);if(candidates[0])a[candidates[0].i]=null;}return a;};
+ return {a,b,periods:out.map(t=>{t.values.sort((a,b)=>a-b);const n=t.values.length,quartiles=n>=100?[.25,.5,.75].map(q=>t.values[Math.floor((n-1)*q)]):null;const smallEducation=t.highest.some(v=>v>0&&v<10)||t.mentions.some(v=>v>0&&v<10);return {n:t.n,stated:countSafe(t.stated),experienceStated:countSafe(n),quartiles,highest:smallEducation?t.highest.map(()=>null):t.highest,mentions:smallEducation?t.mentions.map(()=>null):t.mentions,experience:suppress(t.experience),cross:t.cross.map(suppress)};}),certifications:F.types&&F.types.length&&!F.types.includes(3)?[]:evidence({...F,types:[3]},preset).rows,degree:evidence(F,preset,'degree')};}
+function monitor(F,preset){return M.isco.map((g,id)=>({id,...evidence({...F,isco:F.isco&&!F.isco.includes(id)?[-1]:[id]},preset,'families')})).filter(r=>r.na||r.nb).sort((a,b)=>{const ra=a.rows.find(r=>r.id==='advanced'),rb=b.rows.find(r=>r.id==='advanced'),va=a.common&&ra?.status==='Provisional',vb=b.common&&rb?.status==='Provisional';return Number(vb)-Number(va)||(va&&vb?Math.abs(rb.d||0)-Math.abs(ra.d||0):a.id-b.id);});}
+function monthlySeries(F,target){F=releaseFilter(F);const keep=match(F),tot=Array(M.months.length).fill(0),hits=tot.slice();const family=target.kind==='family'?specsFor('families').find(s=>s.id===target.id):null;
+ for(let i=0;i<N;i++){if(!keep[i])continue;const m=A.month[i];tot[m]++;let hit=false;if(target.kind==='title')hit=A.title[i]===target.id;else for(let p=OFF[i];p<OFF[i+1];p++)if(postingOk(p,F)&&(family?family.ids.has(SK[p]):SK[p]===target.id)){hit=true;break;}if(hit)hits[m]++;}
+ return {months:M.months.slice(F.m0,F.m1+1),tot:tot.slice(F.m0,F.m1+1).map(countSafe),hits:hits.slice(F.m0,F.m1+1).map(countSafe),share:hits.slice(F.m0,F.m1+1).map((c,j)=>tot[j+F.m0]>=30&&countSafe(c)!==null?c/tot[j+F.m0]:null)};
+}
+function fitProjection(values,horizon){const xs=values.slice(-36),eps=.0001,logit=p=>Math.log(Math.max(eps,Math.min(1-eps,p))/(1-Math.max(eps,Math.min(1-eps,p)))),inv=x=>1/(1+Math.exp(-x));const z=xs.map(logit),n=z.length,xm=(n-1)/2,ym=z.reduce((a,b)=>a+b,0)/n;let num=0,den=0;z.forEach((y,i)=>{num+=(i-xm)*(y-ym);den+=(i-xm)**2;});const slope=num/den,intercept=ym-slope*xm;const residuals=z.map((y,i)=>y-intercept-slope*i);const predicted=Array.from({length:horizon},(_,h)=>inv(intercept+slope*(n-1)+slope*.9*(1-.9**(h+1))/.1));return {predicted,slope,residuals,base:intercept+slope*(n-1)};}
+function projection(F,target){const series=monthlySeries(F,target),raw=series.share,smooth=raw.map((v,i)=>i<2||raw.slice(i-2,i+1).some(x=>x===null)?null:raw.slice(i-2,i+1).reduce((a,b)=>a+b,0)/3);const start=smooth.findIndex(v=>v!==null),values=smooth.slice(Math.max(0,start));const result={...series,smooth,accepted:false,reason:'insufficient',model:'Trailing 3-month share; last 36 months logit linear fit; monthly damping 0.90; 500 fixed-seed residual block bootstrap draws',backtest:[],forecast:[],label:null};
+ const support=evidence(F,null,target.kind==='title'?'titles':target.kind==='family'?'families':'skills',[target.id]);const signal=support.rows[0];result.evidence=signal?.status||'Insufficient data';
+ if(!signal||support.na<300||support.nb<300||Math.max(signal.ca??0,signal.cb??0)<50||values.length<72||values.some(v=>v===null))return result;
+ const training=values.slice(0,-24),actual=values.slice(-24),back=fitProjection(training,24),mae=actual.reduce((s,v,i)=>s+Math.abs(v-back.predicted[i]),0)/24,naive=actual.reduce((s,v)=>s+Math.abs(v-training.at(-1)),0)/24,mean=actual.reduce((s,v)=>s+v,0)/24,threshold=Math.max(.005,.25*mean);
+ result.backtest=actual.map((v,i)=>({month:series.months.at(-24+i),actual:v,predicted:back.predicted[i]}));result.mae=mae;result.naiveMae=naive;result.threshold=threshold;result.reason='unstable';
+ if(mae>threshold||mae>Math.max(.001,naive*1.1))return result;
+ const fit=fitProjection(values,24),draws=Array.from({length:24},()=>[]);let seed=74129;const rand=()=>{seed=(1664525*seed+1013904223)>>>0;return seed/4294967296;};const inv=x=>1/(1+Math.exp(-x));
+ // Block-resample logit residuals, refit slope, then add residual variation at each horizon.
+ const recent=values.slice(-36),z=recent.map(p=>Math.log(Math.max(.0001,Math.min(.9999,p))/(1-Math.max(.0001,Math.min(.9999,p))))),n=z.length;
+ for(let draw=0;draw<500;draw++){const sample=[];while(sample.length<n){const k=Math.floor(rand()*n);for(let j=0;j<3&&sample.length<n;j++)sample.push(fit.residuals[(k+j)%n]);}const simulated=z.map((_,i)=>inv(fit.base-fit.slope*(n-1-i)+sample[i])),f=fitProjection(simulated,24);for(let h=0;h<24;h++)draws[h].push(inv(Math.log(f.predicted[h]/(1-f.predicted[h]))+fit.residuals[Math.floor(rand()*n)]));}
+ result.accepted=true;result.reason=null;result.forecast=fit.predicted.map((share,h)=>{const d=draws[h].sort((a,b)=>a-b),date=new Date(series.months.at(-1)+'-01T00:00:00Z');date.setUTCMonth(date.getUTCMonth()+h+1);return {month:date.toISOString().slice(0,7),share,low:d[12],high:d[487]};});
+ const delta=fit.predicted[23]-values.at(-1),prior=values.at(-13)-values.at(-25),latest=values.at(-1)-values.at(-13);result.label=delta<-.005?'Declining':Math.abs(delta)<.005?'Plateauing':latest>Math.max(0,prior)*1.25?'Accelerating':'Steady growth';return result;
+}

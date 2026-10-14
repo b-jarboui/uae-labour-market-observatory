@@ -80,6 +80,7 @@ const yearTicks = (p) => ({ ...axisStyle(p).axisLabel, interval: (i, v) => v.end
 const TABLES = {};
 function table(key, head, rows) {
   TABLES[key] = [head, rows];
+  if (!$("#tbl-" + key)) return;
   const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
   const cell = (v) => window.skillLink ? window.skillLink(v) : esc(v);
   $("#tbl-" + key).innerHTML = `<table class="data"><thead><tr>${head.map((h) => `<th>${cell(h)}</th>`).join("")}</tr></thead><tbody>${rows.map((r) => `<tr>${r.map((c, i) => `<td class="${i ? "n" : ""}">${cell(c)}</td>`).join("")}</tr>`).join("")}</tbody></table>`;
@@ -108,7 +109,7 @@ async function init() {
   const all = await call("overview", { F: { m0: 0, m1: META.months.length - 1, types: null, req: "any", where: "any" } });
   const bm = all.byMonth;
   FIRST = Math.max(mi(2018, 1), bm.findIndex((v) => v >= 50));
-  LAST = bm.length - 1 - [...bm].reverse().findIndex((v) => v >= 50);
+  LAST = Math.min(mi(2026,9), bm.length - 1 - [...bm].reverse().findIndex((v) => v >= 50));
   if (ym(LAST) >= META.built.slice(0, 7)) LAST -= 1;          /* the build month is still being collected */
   S.m0 = FIRST; S.m1 = LAST;
   wasNarrow = narrow();
@@ -237,6 +238,7 @@ async function refresh() {
   fillSelects();
   OV = await call("overview", { F: technicalFilter() });
   await loadGrowth();
+  await loadModules();
   drawOverview();
   await Promise.all([drawShift().then(drawTimeline), drawTop(), drawMatrix(), drawEmi(), drawInd(), drawReq()]);
   if (window.enhanceSkills) window.enhanceSkills();
