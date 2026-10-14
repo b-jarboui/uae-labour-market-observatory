@@ -6,14 +6,14 @@ let skillIndex = new Map(), skillInfo = {}, skillRequest = 0;
 const escoReady = fetch((CFG.DATA_BASE || 'data/') + 'skill_esco.json').then(r => r.ok ? r.json() : {}).catch(() => ({}));
 const infoReady = fetch((CFG.DATA_BASE || 'data/') + 'skill_info.json').then(r => r.ok ? r.json() : {}).then(v => skillInfo = v).catch(() => {});
 // display name: Arabic name in the Arabic view; otherwise sentence case with acronyms and proper nouns restored
-const ACR = new Set('sap pmp html css sql crm erp hr it ui ux uae gcc aws bim cad ifrs gaap vat kpi seo sem ppc api ms qa qc hse iso ai ml bi etl sap fico mep hvac plc scada cpa cma acca cfa dha moh doh haad pmi nebosh iosh osha gis rics leed autocad revit excel'.split(' '));
-const PROPER = new Set('english arabic french hindi urdu tagalog russian german spanish chinese mandarin italian microsoft google oracle salesforce python java javascript linux windows adobe photoshop illustrator primavera tally sage quickbooks power bi tableau'.split(' '));
+const ACR = new Set('sap pmp html css sql crm erp hr it ui ux uae gcc aws bim cad ifrs gaap vat kpi seo sem ppc api ms qa qc hse iso ai ml bi etl sap fico mep hvac plc scada cpa cma acca cfa dha moh doh haad pmi nebosh iosh osha gis rics leed autocad revit excel haccp itil cissp ca ccna prince2 ielts cpr cisa cism ccnp aca cima togaf rera dbs acc asme cia mcse fidic pci dss gdpr ohsas ccie ceh cobit mba nist mrics astm nfpa adnoc bls cipd oshad crisc pgce gmp toefl iec qts acsl ias gcaa oscp cct mcsa sox cips cmmi noc shrm bs ccst cams hipaa nec sira nesa gmc usmle cfe easa tefl celta habc ansi frm pqe giac ashrae gcih cswip ica sabsa ccsp hseq owasp nace aisc pals icaw cis dewa iii'.split(' '));
+const PROPER = new Set('english arabic french hindi urdu tagalog russian german spanish chinese mandarin italian microsoft google oracle salesforce python java javascript linux windows adobe photoshop illustrator primavera tally sage quickbooks power bi tableau estidama comptia'.split(' '));
 window.skillLabel = value => {
   const v = String(value);
   if (lang === 'ar') { const a = skillInfo[v]?.name_ar; if (a) return a; }
   const exact = {'whatsapp':'WhatsApp','google sheets':'Google Sheets','power bi':'Power BI','microsoft power bi':'Microsoft Power BI'};
   if(exact[v]) return exact[v];
-  const out = v.split(' ').map(w => ACR.has(w) ? (w === 'autocad' ? 'AutoCAD' : w === 'excel' ? 'Excel' : w.toUpperCase()) : PROPER.has(w) ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
+  const out = v.split(' ').map(w => ACR.has(w) ? (w === 'autocad' ? 'AutoCAD' : w === 'excel' ? 'Excel' : w === 'prince2' ? 'PRINCE2' : w.toUpperCase()) : PROPER.has(w) ? w[0].toUpperCase() + w.slice(1) : w).join(' ');
   return out[0] ? out[0].toUpperCase() + out.slice(1) : out;
 };
 window.skillLink = value => {

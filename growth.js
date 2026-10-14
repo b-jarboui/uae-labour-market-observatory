@@ -67,7 +67,7 @@ renderBriefing=function() {
   }
   if(lead) {
     const counts=document.createElement('p');counts.className='atlas-note';
-    counts.textContent=st('Skill mentions: ','إشارات المهارة: ')+fmt(lead.ca)+' → '+fmt(lead.cb)+st('. A small starting share can produce a large growth percentage.','. قد تؤدي النسبة الأولية الصغيرة إلى معدل نمو كبير.');
+    counts.textContent=st('Mentions: ','الإشارات: ')+fmt(lead.ca)+st(' of ',' من ')+fmt(GR.na)+st(' ads → ',' إعلاناً ← ')+fmt(lead.cb)+st(' of ',' من ')+fmt(GR.nb)+st(' ads.',' إعلاناً.')+(GR.nb<1000?st(' Small recent sample: read with care.',' عينة حديثة صغيرة: تُقرأ بحذر.'):'');
     briefing.querySelector('.atlas-lead').after(counts);
   }
   if(lead) {

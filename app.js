@@ -130,7 +130,13 @@ function fillSelects() {
   Object.entries(META.isco_major).forEach(([k, v]) => maj.add(new Option(lang === "ar" ? v[1] : v[0], k)));
   maj.value = S.major;
   const isc = $("#fIsco"); isc.innerHTML = ""; isc.add(new Option(t.allGroups, ""));
-  META.isco.forEach((g, i) => { if (!S.major || g[0][0] === S.major) isc.add(new Option(`${g[0]} · ${lang === "ar" ? g[2] : g[1]}`, i)); });
+  // grouped under the ISCO-08 major groups (1 Managers, 2 Professionals, ...), as in the official classification
+  Object.entries(META.isco_major).forEach(([k, v]) => {
+    if (S.major && k !== S.major) return;
+    const og = document.createElement("optgroup"); og.label = `${k} · ${lang === "ar" ? v[1] : v[0]}`;
+    META.isco.forEach((g, i) => { if (g[0][0] === k) og.appendChild(new Option(`${g[0]} · ${lang === "ar" ? g[2] : g[1]}`, i)); });
+    if (og.children.length) isc.appendChild(og);
+  });
   isc.value = S.isco;
   const ind = $("#fInd"); if (ind) { ind.innerHTML = ""; ind.add(new Option(t.allIndustries, ""));
     (META.industries || []).forEach((x, i) => ind.add(new Option(`${x[0]} · ${lang === "ar" ? x[2] : x[1]}`, i))); ind.value = S.ind; }
