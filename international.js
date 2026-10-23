@@ -141,7 +141,8 @@
   $('#topN').textContent=t0().nOf(fmt(OV.n))+' · '+cmpName(compare)+': '+fmt(r.n)+' '+tx('ads','إعلان');
   // the same selection's benchmark size beside the UAE count in "Current selection"
   const m=document.querySelector('#metrics .metric');
-  if(m){m.querySelector('.cmp-d')?.remove();m.insertAdjacentHTML('beforeend',`<div class="d cmp-d"><i class="bench-dot other" aria-hidden="true"></i>${esc(cmpName(compare))}: <b>${fmt(r.n)}</b> ${tx('ads, same selection','إعلان، الاختيار نفسه')}</div>`);}
+  if(m){const v=m.querySelector(':scope > .v'),old=m.querySelector('.cmp-vs');const uae=old?old.querySelector('.v').textContent:v?.textContent;
+   (old||v)?.replaceWith(Object.assign(document.createElement('div'),{className:'cmp-vs',innerHTML:`<div><span class="cmp-tag"><i class="bench-dot" aria-hidden="true"></i>${tx('UAE','الإمارات')}</span><div class="v">${esc(uae)}</div></div><div><span class="cmp-tag"><i class="bench-dot other" aria-hidden="true"></i>${esc(cmpName(compare))}</span><div class="v cmp">${fmt(r.n)}</div></div>`}));}
  }
  const t0=()=>T();
  if(typeof drawTop==='function'){const base=drawTop;window.drawTop=async()=>{await base();await overlayTop();};}
