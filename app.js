@@ -17,7 +17,7 @@ window.OBS = { call };
 
 /* ---------- state ---------- */
 let META = null, FIRST = 0, LAST = 0, lang = "en", aud = "policy";
-const S = { m0: 0, m1: 0, major: "", isco: "", emi: "", ind: "", type: "", where: "any", shiftWin: "trend", tlMode: "skills", stated: "all", smooth: "12" };
+const S = { skillGroup: "job", m0: 0, m1: 0, major: "", isco: "", emi: "", ind: "", type: "", where: "any", shiftWin: "trend", tlMode: "skills", stated: "all", smooth: "12" };
 const T = () => window.I18N[lang];
 const fmt = (n) => (n == null ? "–" : Number(n).toLocaleString(lang === "ar" ? "ar-AE" : "en-US"));
 const pct = (x, d = 1) => (x * 100).toFixed(d) + "%";
@@ -35,11 +35,13 @@ const ym = (i) => META.months[i];
 const ymLabel = (i) => { const [y, m] = ym(i).split("-"); return new Date(+y, +m - 1, 1).toLocaleDateString(lang === "ar" ? "ar-AE" : "en-GB", { month: "short", year: "numeric" }); };
 const narrow = () => innerWidth < 640;
 
+function skillGroupLabel() { return (lang === "ar" ? {job:"مهارات خاصة بالعمل",soft:"مهارات شخصية",language:"مهارات لغوية",all:"جميع المهارات"} : {job:"Job-specific skills",soft:"Soft skills",language:"Language skills",all:"All skills"})[S.skillGroup]; }
+
 function F() {
   return {
     m0: S.m0, m1: S.m1,
     major: S.major ? [S.major] : null, isco: S.isco !== "" ? [+S.isco] : null, emi: S.emi !== "" ? [+S.emi] : null, ind: S.ind !== "" ? [+S.ind] : null,
-    types: S.type !== "" ? [+S.type] : null, req: aud === "emp" ? "required" : "any",
+    types: S.type !== "" ? [+S.type] : S.skillGroup === "job" ? [0,1,3,4] : S.skillGroup === "soft" ? [5] : S.skillGroup === "language" ? [2] : null, req: aud === "emp" ? "required" : "any",
     where: S.where, src: null, ownDate: false, skill: null,
   };
 }
@@ -119,7 +121,7 @@ async function init() {
   META.emirates.forEach(e => { if (emirateArabic[e[0]]) e[2] = emirateArabic[e[0]]; });
   const all = await call("overview", { F: { m0: 0, m1: META.months.length - 1, types: null, req: "any", where: "any" } });
   const bm = all.byMonth;
-  FIRST = Math.max(mi(2018, 1), bm.findIndex((v) => v >= 50));
+  FIRST = Math.max(mi(2021, 1), bm.findIndex((v) => v >= 50));
   LAST = Math.min(mi(2026,9), bm.length - 1 - [...bm].reverse().findIndex((v) => v >= 50));
   if (ym(LAST) >= META.built.slice(0, 7)) LAST -= 1;          /* the build month is still being collected */
   S.m0 = FIRST; S.m1 = LAST;
@@ -132,6 +134,10 @@ async function init() {
 
 function fillSelects() {
   const t = T();
+  const groups = lang === 'ar' ? [['job','مهارات خاصة بالعمل'],['soft','مهارات شخصية'],['language','مهارات لغوية'],['all','جميع المهارات']] : [['job','Job-specific skills'],['soft','Soft skills'],['language','Language skills'],['all','All skills']];
+  const groupSelect = $('#fSkillGroup');groupSelect.innerHTML='';groups.forEach(([v,n])=>groupSelect.add(new Option(n,v)));groupSelect.value=S.skillGroup;
+  $('#skillGroupLabel').textContent=lang==='ar'?'مجموعة المهارات':'Skill group';
+  $('#skillGroupHelp').textContent=lang==='ar'?'المهارات الشخصية: التواصل والانتباه للتفاصيل والعمل الجماعي. المهارات الخاصة بالعمل: المهارات التقنية والأدوات والأساليب والشهادات؛ اختر المهنة للتركيز على عمل محدد. تُعرض اللغات في مجموعة مستقلة.':'Soft skills: communication, attention to detail and teamwork. Job-specific skills: technical skills, tools, methods and certifications; choose an occupation to focus on a particular job. Languages have their own group.';
   const monthOpts = (sel, val) => {
     sel.innerHTML = "";
     for (let i = FIRST; i <= LAST; i++) { const o = new Option(ymLabel(i), i); if (i === val) o.selected = true; sel.add(o); }
@@ -177,10 +183,11 @@ function bindControls() {
   $("#fIsco").onchange = (e) => { S.isco = e.target.value; moreCount(); refresh(); };
   $("#fEmi").onchange = (e) => { S.emi = e.target.value; refresh(); };
   if ($("#fInd")) $("#fInd").onchange = (e) => { S.ind = e.target.value; refresh(); };
-  $("#fType").onchange = (e) => { S.type = e.target.value; moreCount(); refresh(); };
+  $("#fSkillGroup").onchange = (e) => { S.skillGroup=e.target.value;S.type="";refresh(); };
+  $("#fType").onchange = (e) => { S.type = e.target.value;S.skillGroup="all";moreCount(); refresh(); };
   $("#fWhere").onchange = (e) => { S.where = e.target.value; moreCount(); refresh(); };
   $("#moreBtn").onclick = () => { const m = $("#more"); m.hidden = !m.hidden; $("#moreBtn").setAttribute("aria-expanded", String(!m.hidden)); moreCount(); };
-  $("#resetBtn").onclick = () => { Object.assign(S, { m0: FIRST, m1: LAST, major: "", isco: "", emi: "", ind: "", type: "", where: "any" }); setAud("policy"); };
+  $("#resetBtn").onclick = () => { Object.assign(S, { skillGroup:"job", m0: FIRST, m1: LAST, major: "", isco: "", emi: "", ind: "", type: "", where: "any" }); setAud("policy"); };
   $$(".presets .chip").forEach((b) => (b.onclick = () => setAud(b.dataset.aud)));
   seg("tlMode", "tlMode", drawTimeline);
   seg("shiftMode", "shiftWin", () => { drawShift(); drawReq(); });
@@ -257,6 +264,7 @@ async function refresh() {
   await loadGrowth();
   await loadModules();
   drawOverview();
+  if (window.refreshInternational) window.refreshInternational();
   await Promise.all([drawShift().then(drawTimeline), drawTop(), drawMatrix(), drawEmi(), drawInd(), drawReq()]);
   if (window.enhanceSkills) window.enhanceSkills();
   // empty or tiny selections: say so on every chart instead of showing blank axes
@@ -285,6 +293,7 @@ function activeFilterText() {
   if (S.emi !== "") parts.push(lang === "ar" ? META.emirates[+S.emi][2] : META.emirates[+S.emi][1]);
   if (S.ind !== "" && META.industries) parts.push(lang === "ar" ? META.industries[+S.ind][2] : META.industries[+S.ind][1]);
   if (S.type !== "") parts.push(t.types[+S.type]);
+  else parts.push(skillGroupLabel());
   parts.push(`${ymLabel(S.m0)} – ${ymLabel(S.m1)}`);
   return parts.join(" · ");
 }
@@ -292,7 +301,7 @@ function activeFilterText() {
 function drawOverview() {
   const t = T(), o = OV, cov = META.coverage;
   $("#lede").textContent = t.lede(ymLabel(FIRST), ymLabel(LAST));
-  $("#progress").innerHTML = t.progress(fmt(cov.packed_ads), fmt(cov.corpus_ads), ymLabel(LAST));
+  $("#progress").textContent = (lang === "ar" ? "إعلانات الأرشيف الإماراتي منذ 2021: " : "UAE archive ads since 2021: ") + fmt(cov.packed_ads) + (lang === "ar" ? " · المقارنة الدولية أدناه" : " · international comparison below");
   const own = o.n ? Math.round((o.own / o.n) * 100) : 0;
   const deg = o.eduStated ? o.degreeReq / o.eduStated : 0;
   $("#metrics").innerHTML = [
@@ -312,11 +321,11 @@ function drawOverview() {
 /* windows for the before/after comparisons */
 function windows() {
   // default: the long-run trend, first two full years against the latest 12 complete months
-  if (S.shiftWin === "trend") return [[Math.max(FIRST, mi(2018, 1)), mi(2019, 12)], [LAST - 11, LAST]];
+  if (S.shiftWin === "trend") return [[Math.max(FIRST, mi(2021, 1)), mi(2022, 12)], [LAST - 11, LAST]];
   // adoption takes time: eras of about two years, not the months around each launch
   if (S.shiftWin === "agent") return [[mi(2023, 1), mi(2024, 12)], [mi(2025, 1), LAST]];
-  if (S.shiftWin === "covid") return [[mi(2019, 3), mi(2020, 2)], [mi(2020, 6), mi(2021, 5)]];
-  return [[mi(2020, 11), mi(2022, 10)], [mi(2023, 1), mi(2024, 12)]];
+
+  return [[mi(2021, 1), mi(2022, 10)], [mi(2023, 1), mi(2024, 12)]];
 }
 const winLabel = (w) => `${ymLabel(w[0])} – ${ymLabel(w[1])}`;
 
@@ -373,7 +382,7 @@ async function drawTimeline() {
   // COVID-19 and ChatGPT are reference markers only: light, thin, small labels
   const marks = { symbol: "none", silent: true, lineStyle: { color: p.ink3, type: "dotted", width: 1, opacity: 0.6 },
     label: { color: p.ink3, fontFamily: p.font, fontSize: 11, fontWeight: 500, formatter: (d) => d.name, position: "end", distance: 4 },
-    data: [{ xAxis: ym(COVID), name: t.covid }, { xAxis: ym(GPT), name: t.gpt }, { xAxis: ym(AGENT), name: t.agent }] };
+    data: [{ xAxis: ym(GPT), name: t.gpt }, { xAxis: ym(AGENT), name: t.agent }] };
   if (S.tlMode === "volume") {
     const volume = OV.byMonth.slice(m0, m1 + 1);
     $("#tlTitle").textContent = t.tlTitleVol; $("#tlQ").textContent = t.tlQVol;
@@ -520,7 +529,7 @@ async function drawReq() {
   ]);
   R.years = selected.years;
   const only = S.stated === "stated";
-  const years = Object.keys(R.years).filter((y) => +y >= 2018 && +y <= +ym(LAST).slice(0, 4)).sort();
+  const years = Object.keys(R.years).filter((y) => +y >= 2021 && +y <= +ym(LAST).slice(0, 4)).sort();
   const order = ["phd", "master", "bachelor", "diploma", "vocational", "certificate", "secondary", ...(only ? [] : ["none"])];
   const cols = { phd: p.navy, master: css("--s4"), bachelor: p.teal, diploma: p.amber, vocational: css("--s5"), certificate: css("--s6"), secondary: p.slate, none: p.na };
   const tot = (y) => order.reduce((s, k) => s + (R.years[y][k] || 0), 0);

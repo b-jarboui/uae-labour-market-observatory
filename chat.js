@@ -10,14 +10,16 @@
   const mi = (y, m) => (y - 2015) * 12 + (m - 1);
 
   const TOOLS = [{ functionDeclarations: [
+    { name: "compare_markets", description: "Compare UAE skill shares with US, UK (GB), or GLOBAL excluding UAE using the integrated 2021+ collection and the current page filters. Returns descriptive gaps, sample sizes and source/cohort context.",
+      parameters: {type:"OBJECT",properties:{benchmark:{type:"STRING",enum:["US","GB","GLOBAL"]},uae_source:{type:"STRING",enum:["archive","panel"]},skill:{type:"STRING"}},required:["benchmark"]}},
     { name: "job_profile", description: "Skills, degree levels and experience that UAE job ads ask for a job title (search words), optionally in a year range.",
       parameters: { type: "OBJECT", properties: { query: { type: "STRING", description: "job title words, e.g. 'data analyst', 'nurse', 'civil engineer'" },
         from_year: { type: "INTEGER" }, to_year: { type: "INTEGER" } }, required: ["query"] } },
-    { name: "skill_trend", description: "Yearly share (%) of UAE job ads mentioning a skill, 2018 to latest, optionally for one job title.",
+    { name: "skill_trend", description: "Yearly share (%) of UAE job ads mentioning a skill, 2021 to latest, optionally for one job title.",
       parameters: { type: "OBJECT", properties: { skill: { type: "STRING", description: "canonical English skill name, lower case, e.g. 'python', 'communication'" },
         job: { type: "STRING", description: "optional job title words" } }, required: ["skill"] } },
-    { name: "compare_periods", description: "Skills that gained or lost the most share of ads between two periods: 'gpt' = 12 months before Nov 2022 vs latest 12 months; 'covid' = Mar 2019-Feb 2020 vs Jun 2020-May 2021. Optionally for one job title.",
-      parameters: { type: "OBJECT", properties: { window: { type: "STRING", enum: ["gpt", "covid"] }, job: { type: "STRING" } }, required: ["window"] } },
+    { name: "compare_periods", description: "Skills that gained or lost the most share of ads between two periods: 'gpt' = Jan 2021-Oct 2022 vs 2023-2024; 'trend' = 2021-2022 vs latest 12 months. Optionally for one job title.",
+      parameters: { type: "OBJECT", properties: { window: { type: "STRING", enum: ["gpt", "trend"] }, job: { type: "STRING" } }, required: ["window"] } },
     { name: "search_titles", description: "List job titles present in the data that match search words.",
       parameters: { type: "OBJECT", properties: { query: { type: "STRING" } }, required: ["query"] } },
   ] }];
@@ -30,6 +32,13 @@
     return names.map((n) => all.indexOf(n)).filter((i) => i >= 0);
   }
   const RUN = {
+    async compare_markets({benchmark,uae_source,skill}) {
+      const engine=window.INTERNATIONAL;if(!engine)return {available:false};
+      const f=window.OBS.F();if(f.ind?.length||f.emi?.length)return {available:false,reason:"No reviewed international industry/emirate classifications; clear those filters."};
+      const context={...engine.state,target:benchmark,uae:uae_source||engine.state.uae,F:f,search:skill||"",limit:10};
+      const r=await engine.rpc('query',context);
+      return {benchmark,uae_source:context.uae,cohort:context.cohort,global_excludes_uae:true,uae_sample:r.uae,benchmark_sample:r.benchmark,skills:r.rows,interpretation:"Observed ad shares; unequal collection frames for archive vs panel; no national representativeness or causal inference."};
+    },
     async job_profile({ query, from_year, to_year }) {
       const F = allF();
       if (from_year) F.m0 = Math.max(F.m0, mi(from_year, 1));
@@ -44,13 +53,13 @@
       if (job && !tids.length) return { skill, job, found: false, note: "no matching job titles" };
       const tr = await window.OBS.call("trend", { F: { ...F, title: tids }, ids: [id] });
       const years = {};
-      window.OBS.meta.months.forEach((m, i) => { const y = m.slice(0, 4); if (+y < 2018 || !tr.tot[i]) return;
+      window.OBS.meta.months.forEach((m, i) => { const y = m.slice(0, 4); if (+y < 2021 || !tr.tot[i]) return;
         years[y] = years[y] || { ads: 0, hits: 0 }; years[y].ads += tr.tot[i]; years[y].hits += tr.series[0][i]; });
       return { skill, job: job || "all jobs", byYear: Object.fromEntries(Object.entries(years).map(([y, v]) => [y, { ads: v.ads, sharePct: +(100 * v.hits / v.ads).toFixed(1) }])) };
     },
     async compare_periods({ window: w, job }) {
       const [, last] = window.OBS.range;
-      const [a, b] = w === "covid" ? [[mi(2019, 3), mi(2020, 2)], [mi(2020, 6), mi(2021, 5)]] : [[mi(2021, 11), mi(2022, 10)], [last - 11, last]];
+      const [a, b] = w === "trend" ? [[mi(2021, 1), mi(2022, 12)], [last - 11, last]] : [[mi(2021, 1), mi(2022, 10)], [mi(2023, 1), mi(2024, 12)]];
       const tids = await titleIds(job);
       const r = await window.OBS.call("shift", { F: { ...allF(), title: tids }, a, b, k: 10 });
       const s = (x) => ({ skill: x.name, beforePct: +(100 * x.a).toFixed(1), afterPct: +(100 * x.b).toFixed(1) });
@@ -59,7 +68,7 @@
     async search_titles({ query }) { return { titles: (await window.OBS.call("titles", { q: query, k: 20 })) }; },
   };
 
-  const system = () => `You are the assistant of the UAE Labour Market Observatory. Answer questions about jobs and skills in the UAE using ONLY results from the functions, which query ~239,000 UAE job advertisements (2018-2026). Always call a function before answering a factual question. Quote numbers as shares of advertisements and say how many ads they rest on; if fewer than 100 ads, say the sample is small. Advertised demand is not employment. Never invent figures. Be concise: at most 8 lines, with a short list when useful. Answer in ${lang === "ar" ? "Arabic" : "English"}.`;
+  const system = () => `You are the assistant of the UAE Labour Market Observatory. Answer questions about jobs and skills in the UAE using ONLY results from the functions, which query the retained UAE archive and international panel advertisements (2021-2026). Always call a function before answering a factual question. Quote numbers as shares of advertisements and say how many ads they rest on; if fewer than 100 ads, say the sample is small. Advertised demand is not employment. Never invent figures. Be concise: at most 8 lines, with a short list when useful. Answer in ${lang === "ar" ? "Arabic" : "English"}.`;
 
   async function gemini(contents) {
     const body = { systemInstruction: { parts: [{ text: system() }] }, contents, tools: TOOLS, generationConfig: { temperature: 0.2 } };

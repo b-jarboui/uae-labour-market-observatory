@@ -1,0 +1,209 @@
+{
+  "passed": true,
+  "observations": 1403522,
+  "distinct_ads": 1328988,
+  "distinct_texts": 811341,
+  "country_counts": {
+    "AE": {
+      "observations": 4002,
+      "distinct_ads": 3463,
+      "distinct_texts": 3200
+    },
+    "AU": {
+      "observations": 49871,
+      "distinct_ads": 46478,
+      "distinct_texts": 38452
+    },
+    "BD": {
+      "observations": 45,
+      "distinct_ads": 36,
+      "distinct_texts": 36
+    },
+    "BH": {
+      "observations": 18,
+      "distinct_ads": 13,
+      "distinct_texts": 11
+    },
+    "BS": {
+      "observations": 12,
+      "distinct_ads": 12,
+      "distinct_texts": 12
+    },
+    "CA": {
+      "observations": 82903,
+      "distinct_ads": 80091,
+      "distinct_texts": 53571
+    },
+    "CM": {
+      "observations": 7,
+      "distinct_ads": 7,
+      "distinct_texts": 6
+    },
+    "CY": {
+      "observations": 2029,
+      "distinct_ads": 1714,
+      "distinct_texts": 1670
+    },
+    "EG": {
+      "observations": 2336,
+      "distinct_ads": 2084,
+      "distinct_texts": 890
+    },
+    "ET": {
+      "observations": 5,
+      "distinct_ads": 5,
+      "distinct_texts": 5
+    },
+    "GB": {
+      "observations": 270552,
+      "distinct_ads": 253353,
+      "distinct_texts": 191514
+    },
+    "GH": {
+      "observations": 30,
+      "distinct_ads": 30,
+      "distinct_texts": 19
+    },
+    "HK": {
+      "observations": 10195,
+      "distinct_ads": 9914,
+      "distinct_texts": 8133
+    },
+    "IE": {
+      "observations": 23855,
+      "distinct_ads": 23188,
+      "distinct_texts": 18028
+    },
+    "IL": {
+      "observations": 1490,
+      "distinct_ads": 1483,
+      "distinct_texts": 625
+    },
+    "IN": {
+      "observations": 134965,
+      "distinct_ads": 127914,
+      "distinct_texts": 55689
+    },
+    "JM": {
+      "observations": 1,
+      "distinct_ads": 1,
+      "distinct_texts": 1
+    },
+    "JO": {
+      "observations": 784,
+      "distinct_ads": 526,
+      "distinct_texts": 523
+    },
+    "KE": {
+      "observations": 44,
+      "distinct_ads": 36,
+      "distinct_texts": 21
+    },
+    "KW": {
+      "observations": 143,
+      "distinct_ads": 91,
+      "distinct_texts": 65
+    },
+    "LB": {
+      "observations": 2,
+      "distinct_ads": 2,
+      "distinct_texts": 1
+    },
+    "LK": {
+      "observations": 49,
+      "distinct_ads": 45,
+      "distinct_texts": 41
+    },
+    "MT": {
+      "observations": 1828,
+      "distinct_ads": 1507,
+      "distinct_texts": 1326
+    },
+    "MU": {
+      "observations": 75,
+      "distinct_ads": 72,
+      "distinct_texts": 65
+    },
+    "MY": {
+      "observations": 8785,
+      "distinct_ads": 8603,
+      "distinct_texts": 6910
+    },
+    "NG": {
+      "observations": 136,
+      "distinct_ads": 107,
+      "distinct_texts": 89
+    },
+    "NZ": {
+      "observations": 6495,
+      "distinct_ads": 6299,
+      "distinct_texts": 5655
+    },
+    "OM": {
+      "observations": 107,
+      "distinct_ads": 103,
+      "distinct_texts": 57
+    },
+    "PG": {
+      "observations": 4,
+      "distinct_ads": 4,
+      "distinct_texts": 3
+    },
+    "PH": {
+      "observations": 8936,
+      "distinct_ads": 8742,
+      "distinct_texts": 4394
+    },
+    "PK": {
+      "observations": 119,
+      "distinct_ads": 67,
+      "distinct_texts": 65
+    },
+    "QA": {
+      "observations": 967,
+      "distinct_ads": 866,
+      "distinct_texts": 809
+    },
+    "RW": {
+      "observations": 20,
+      "distinct_ads": 20,
+      "distinct_texts": 17
+    },
+    "SA": {
+      "observations": 2661,
+      "distinct_ads": 2494,
+      "distinct_texts": 2279
+    },
+    "SG": {
+      "observations": 26089,
+      "distinct_ads": 25681,
+      "distinct_texts": 16467
+    },
+    "TZ": {
+      "observations": 27,
+      "distinct_ads": 17,
+      "distinct_texts": 14
+    },
+    "US": {
+      "observations": 761965,
+      "distinct_ads": 722138,
+      "distinct_texts": 399881
+    },
+    "ZA": {
+      "observations": 1345,
+      "distinct_ads": 1309,
+      "distinct_texts": 934
+    },
+    "ZM": {
+      "observations": 11,
+      "distinct_ads": 10,
+      "distinct_texts": 10
+    },
+    "ZW": {
+      "observations": 614,
+      "distinct_ads": 463,
+      "distinct_texts": 416
+    }
+  },
+  "identity": "company, market, URL and text hash, independent of snapshot; all row-country IDs independently reconciled to raw panel records."
+}

@@ -19,9 +19,10 @@ function restoreBriefing() {
   }
   const major=q.get('major'); if(major && Object.hasOwn(META.isco_major,major)) S.major=major;
   if(S.isco !== '' && S.major && META.isco[+S.isco][0][0]!==S.major) S.major='';
-  for(const [key, values] of [['where',['any','requirements','duties']],['shiftWin',['trend','gpt','agent','covid']],['smooth',['12','6','1']],['tlMode',['skills','volume']],['stated',['all','stated']]]) {
+  for(const [key, values] of [['where',['any','requirements','duties']],['shiftWin',['trend','gpt','agent']],['smooth',['12','6','1']],['tlMode',['skills','volume']],['stated',['all','stated']]]) {
     if(values.includes(q.get(key))) S[key]=q.get(key);
   }
+  if(['job','soft','language','all'].includes(q.get('skillGroup'))) S.skillGroup=q.get('skillGroup');
   if(['policy','uni','emp'].includes(q.get('aud'))) aud=q.get('aud');
   if(['en','ar'].includes(q.get('lang'))) lang=q.get('lang');
   for(const [id,key] of [['tlMode','tlMode'],['shiftMode','shiftWin'],['statedMode','stated'],['smoothMode','smooth']]) $$(`#${id} button`).forEach(b=>b.classList.toggle('on',b.dataset.v===S[key]));

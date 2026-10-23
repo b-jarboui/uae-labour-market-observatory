@@ -1,0 +1,12 @@
+{
+  "description": "Reviewed exact-label corrections for the soft/job-specific split; type IDs follow the existing dashboard registry.",
+  "types": ["technical", "tool", "language", "certification", "method", "soft"],
+  "overrides": {
+    "patient care": 0,
+    "clinical assessment": 0,
+    "clinical care": 0,
+    "medication administration": 0,
+    "nursing care": 0,
+    "customer relationship management": 4
+  }
+}
