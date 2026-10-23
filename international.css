@@ -1,6 +1,20 @@
 /* International benchmark: UAE remains the focus; shares are the visual unit. */
 .international{scroll-margin-top:110px;--bench-other:var(--navy,#496cad)}
 .international .bench-intro{max-width:850px;color:var(--ink-2);line-height:1.7;margin:10px 0 22px}
+.bench-data{padding:22px 24px;margin:0 0 20px;border:1px solid var(--line);border-radius:12px;background:var(--surface)}
+.bench-data-head h3{margin:0 0 4px;font-size:19px}
+.bench-data-head p{margin:0}
+.bench-data-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:16px 0}
+.bench-data-kpis div{padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--bg,var(--surface));display:flex;flex-direction:column;gap:3px}
+.bench-data-kpis span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);font-weight:600}
+.bench-data-kpis strong{font-size:26px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.bench-data-kpis small{font-size:12px;color:var(--ink-2)}
+.bench-data-table th,.bench-data-table td{padding:8px 12px;font-size:12.5px}
+.bench-table.bench-data-table thead th{text-align:end}.bench-table.bench-data-table thead th:nth-child(-n+2){text-align:start}
+.bench-data-table tbody th{display:flex;align-items:center;min-width:200px}
+.bench-row-collected th,.bench-row-collected td{color:var(--ink-2);font-style:italic}
+.bench-data-table caption{text-align:start;font-size:12px;color:var(--ink-2);padding:0 0 8px}
+@media (max-width:760px){.bench-data-kpis{grid-template-columns:1fr}.bench-data{padding:16px}}
 .bench-controls{display:grid;grid-template-columns:1fr 1fr 1.35fr .65fr;gap:16px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
 .bench-controls label,.bench-ranking-head label{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:600;min-width:0}
 .bench-controls select,.bench-controls input,.bench-ranking-head select{box-sizing:border-box;width:100%;font:inherit;font-size:14px;border:1px solid var(--line);background:var(--bg,var(--surface));color:var(--ink);padding:10px;border-radius:7px;min-height:44px;max-width:100%}

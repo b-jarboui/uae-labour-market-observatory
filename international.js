@@ -4,7 +4,7 @@
  const section=document.createElement('section');section.id='international';section.className='block international';
  document.getElementById('rail').after(section);
  const nav=document.createElement('a');nav.href='#international';nav.textContent='International comparison';document.querySelector('.secnav .wrap').append(nav);
- const worker=new Worker('international-worker.js?v=integrated2021');let seq=0;const pending=new Map();
+ const worker=new Worker('international-worker.js?v=integrated2021d');let seq=0;const pending=new Map();
  worker.onmessage=({data})=>{const p=pending.get(data.id);if(!p)return;pending.delete(data.id);data.ok?p.resolve(data.r):p.reject(Error(data.error));};
  worker.onerror=e=>{for(const p of pending.values())p.reject(Error(e.message));pending.clear();};
  const rpc=(op,args)=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});worker.postMessage({id,op,args});});
@@ -24,6 +24,7 @@
   document.querySelectorAll('[data-global-note]').forEach(n=>n.hidden=n.dataset.globalNote!==(ar()?'ar':'en'));
   section.innerHTML=`<div class="sec-head"><h2>${tx('UAE skills against international benchmarks','المهارات في الإمارات مقارنة بالمعايير الدولية')}</h2><p>2021–2026 · ${tx('United States / United Kingdom / Global','الولايات المتحدة / المملكة المتحدة / العالم')}</p></div>
    <p class="bench-intro">${tx('Which skills appear more often in UAE job ads? Compare skill shares with the US, UK or global benchmark, then select a skill to explore its annual history.','ما المهارات الأكثر شيوعاً في إعلانات الوظائف الإماراتية؟ قارن نسب المهارات بالمعيار الأمريكي أو البريطاني أو العالمي، ثم اختر مهارة لاستكشاف تاريخها السنوي.')}</p>
+   <article class="bench-data" id="int-data" aria-live="polite"><p class="bench-note">${tx('Counting the data…','جارٍ عدّ البيانات…')}</p></article>
    <div class="bench-controls"><label>${tx('Compare UAE with','مقارنة الإمارات مع')}<select id="int-target"><option value="US">${tx('United States','الولايات المتحدة')}</option><option value="GB">${tx('United Kingdom','المملكة المتحدة')}</option><option value="GLOBAL">${tx('Global, excluding UAE','العالم، باستثناء الإمارات')}</option></select></label>
    <label>${tx('Skill group','مجموعة المهارات')}<select id="int-group" aria-describedby="int-group-help"><option value="job">${tx('Job-specific skills','مهارات خاصة بالعمل')}</option><option value="soft">${tx('Soft skills','مهارات شخصية')}</option><option value="language">${tx('Language skills','مهارات لغوية')}</option><option value="all">${tx('All skills','جميع المهارات')}</option></select></label>
    <label class="bench-search-label">${tx('Find a skill','البحث عن مهارة')}<input id="int-search" type="search" autocomplete="off" placeholder="${tx('Search this skill group…','ابحث في مجموعة المهارات…')}" value="${esc(state.search)}" aria-controls="int-results"></label>
@@ -32,6 +33,27 @@
   for(const key of ['target','limit']){el('int-'+key).value=state[key];el('int-'+key).onchange=e=>{state[key]=key==='limit'?+e.target.value:e.target.value;if(key==='uae')state.skill=null;update();};}
   el('int-search').oninput=e=>{state.search=e.target.value;clearTimeout(timer);timer=setTimeout(update,250);};
   el('int-group').value=S.skillGroup;el('int-group').onchange=e=>{S.skillGroup=e.target.value;S.type='';refresh();};
+  if(totals)renderData();
+ }
+ // Full data used, before any filter: the reader sees how much local and international data stands behind every share.
+ let totals=null;
+ async function loadTotals(){try{totals=await rpc('totals');renderData();}catch(e){el('int-data').innerHTML=`<p class="bench-note">${tx('Could not count the data.','تعذر عدّ البيانات.')}</p>`;console.error(e);}}
+ function renderData(){
+  const t=totals,n=v=>Number(v).toLocaleString(ar()?'ar-AE':'en-US'),cell=v=>v?n(v):'—';
+  const all=(typeof META!=='undefined'&&META?.coverage?.all_years_archive)||null,allN=all?Object.values(all).reduce((a,b)=>a+b,0):t.AE.n;
+  const rows=[['AE',tx('United Arab Emirates','الإمارات العربية المتحدة'),tx('UAE archive ads','إعلانات أرشيف الإمارات'),'uae'],
+   ['US',tx('United States','الولايات المتحدة'),tx('Company career sites','مواقع توظيف الشركات'),'us'],
+   ['GB',tx('United Kingdom','المملكة المتحدة'),tx('Company career sites','مواقع توظيف الشركات'),'gb'],
+   ['GLOBAL',tx('Global, excluding UAE','العالم، باستثناء الإمارات')+` (${t.GLOBAL.markets} ${tx('countries','دولة')})`,tx('Company career sites','مواقع توظيف الشركات'),'global']];
+  el('int-data').innerHTML=`<div class="bench-data-head"><h3>${tx('Data behind this comparison','البيانات المستخدمة في هذه المقارنة')}</h3>
+   <p class="bench-note">${tx('All data used, before any filter. The filters below select a part of it.','جميع البيانات المستخدمة قبل أي تصفية. تختار المرشحات أدناه جزءاً منها.')}</p></div>
+   <div class="bench-data-kpis"><div><span>${tx('UAE ads','إعلانات الإمارات')}</span><strong>${n(t.AE.n)}</strong><small>${t.AE.from} – ${t.AE.to}${allN>t.AE.n?' · '+tx(`of ${n(allN)} collected since 2018`,`من ${n(allN)} جُمعت منذ 2018`):''}</small></div>
+   <div><span>${tx('International ads','الإعلانات الدولية')}</span><strong>${n(t.GLOBAL.n)}</strong><small>${n(t.GLOBAL.companies)} ${tx('companies','شركة')} · ${t.GLOBAL.markets} ${tx('countries','دولة')} · ${t.GLOBAL.from} – ${t.GLOBAL.to}</small></div>
+   <div><span>${tx('Total ads used','إجمالي الإعلانات المستخدمة')}</span><strong>${n(t.AE.n+t.GLOBAL.n)}</strong><small>${tx('UAE + international','الإمارات + الدولية')}</small></div></div>
+   <div class="bench-table-wrap"><table class="bench-table bench-data-table"><caption>${tx('Ads per market and year (full data)','الإعلانات حسب السوق والسنة (كامل البيانات)')}</caption>
+   <thead><tr><th scope="col">${tx('Market','السوق')}</th><th scope="col">${tx('Source','المصدر')}</th><th scope="col">${tx('Total ads','إجمالي الإعلانات')}</th><th scope="col">${tx('Companies','الشركات')}</th>${t.years.map(y=>`<th scope="col">${y}</th>`).join('')}</tr></thead>
+   <tbody>${rows.map(([k,name,src,cls])=>`<tr class="bench-row-${cls}"><th scope="row"><i class="bench-dot ${k==='AE'?'':'other'}" aria-hidden="true"></i>${esc(name)}</th><td>${esc(src)}</td><td class="num"><strong>${n(t[k].n)}</strong></td><td class="num">${t[k].companies===null?'—':n(t[k].companies)}</td>${t[k].years.map(v=>`<td class="num">${cell(v)}</td>`).join('')}</tr>`).join('')}${all&&allN>t.AE.n?`<tr class="bench-row-collected"><th scope="row"><i class="bench-dot" aria-hidden="true"></i>${tx('UAE, all collected','الإمارات، كل ما جُمع')}</th><td>${tx('Same archives, from 2018','الأرشيفات نفسها، منذ 2018')}</td><td class="num"><strong>${n(allN)}</strong></td><td class="num">—</td>${t.years.map(y=>`<td class="num">${cell(all[y])}</td>`).join('')}</tr>`:''}</tbody></table></div>
+   <p class="bench-note">${tx(`UAE: deduplicated job ads from the Observatory archives (Internet Archive, Common Crawl, Web Data Commons); company names are not kept. International: English ads posted on companies' own career sites, in Common Crawl snapshots from ${t.GLOBAL.from}; each distinct ad text counts once per country, repeated snapshots removed. Global includes the US and UK. The same companies' sites also give ${n(t.AEpanel.n)} UAE ads (${n(t.AEpanel.companies)} companies), not used above. ${allN>t.AE.n?`UAE ads from 2018–2020 (${n(allN-t.AE.n)}) are collected but not used, because the international data begin in 2021. `:''}An international ad text seen in several years counts in each year, so its years add up to more than its total. — = no data that year.`,`الإمارات: إعلانات وظائف بعد إزالة التكرار من أرشيفات المرصد (أرشيف الإنترنت، Common Crawl، Web Data Commons)؛ لا تُحفظ أسماء الشركات. الدولية: إعلانات بالإنجليزية منشورة على مواقع التوظيف الخاصة بالشركات في لقطات Common Crawl منذ ${t.GLOBAL.from}؛ يُحتسب كل نص إعلان مميز مرة واحدة لكل دولة بعد حذف اللقطات المكررة. يشمل العالم الولايات المتحدة والمملكة المتحدة. توفر مواقع الشركات نفسها أيضاً ${n(t.AEpanel.n)} إعلاناً إماراتياً (${n(t.AEpanel.companies)} شركة) غير مستخدمة أعلاه. ${allN>t.AE.n?`إعلانات الإمارات للأعوام 2018–2020 (${n(allN-t.AE.n)}) مجمعة لكنها غير مستخدمة لأن البيانات الدولية تبدأ في 2021. `:''}يُحتسب النص الذي يظهر في عدة سنوات في كل سنة، لذا يتجاوز مجموع السنوات الإجمالي. — = لا توجد بيانات في تلك السنة.`)}</p>`;
  }
  function currentFilter(){return typeof META!=='undefined'&&META?F():{m0:72,m1:140,types:null,where:'any',req:'any'};}
  async function update(){
@@ -50,7 +72,7 @@
  }
  function sampleCard(s,other){
   const small=s.n<100||(s.companies!==null&&s.companies<10);
-  return `<article class="bench-sample ${other?'benchmark':''}"><span class="bench-eyebrow">${other?tx('Reference benchmark','المعيار المرجعي'):tx('Focus market','السوق الرئيسي')}</span><h3>${other?targetName():tx('United Arab Emirates','الإمارات العربية المتحدة')}</h3><div class="bench-meta">${tx('Sample: ','العينة: ')}<strong>${num(s.n)}</strong> ${tx(other?'distinct ad texts':'ads',other?'نص إعلان مميزاً':'إعلاناً')}${s.companies===null?'':' · '+num(s.companies)+' '+tx('companies','شركة')}${small?' · <strong>'+tx('Small sample','عينة صغيرة')+'</strong>':''}</div>${s.base?`<div class="bench-meta">${tx('Occupation classified: ','المهنة مصنفة: ')}${(100*(1-s.baseUnknown/s.base)).toFixed(1)}% ${tx('of the period sample','من عينة الفترة')}</div>`:''}</article>`;
+  return `<article class="bench-sample ${other?'benchmark':''}"><span class="bench-eyebrow">${other?tx('Reference benchmark','المعيار المرجعي'):tx('Focus market','السوق الرئيسي')}</span><h3>${other?targetName():tx('United Arab Emirates','الإمارات العربية المتحدة')}</h3><div class="bench-meta">${tx('Sample: ','العينة: ')}<strong>${num(s.n)}</strong> ${tx('ads in the selected period','إعلاناً في الفترة المختارة')}${s.companies===null?'':' · '+num(s.companies)+' '+tx('companies','شركة')}${small?' · <strong>'+tx('Small sample','عينة صغيرة')+'</strong>':''}</div>${s.base?`<div class="bench-meta">${tx('Occupation classified: ','المهنة مصنفة: ')}${(100*(1-s.baseUnknown/s.base)).toFixed(1)}% ${tx('of the period sample','من عينة الفترة')}</div>`:''}</article>`;
  }
  function renderRanking(){
   const rows=result[state.ranking]||result.topU;
@@ -90,7 +112,7 @@
  }
  window.INTERNATIONAL={state,update,result:null,meta:null,rpc};
  window.refreshInternational=()=>{if(el('int-status'))update();};
- shell();
+ shell();loadTotals();
  new MutationObserver(()=>{shell();update();}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
  // The archive app calls refreshInternational once its shared filters are ready.
  if(typeof META!=='undefined'&&META)update();

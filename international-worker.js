@@ -93,4 +93,23 @@ async function query(args){
  if(unmeasured)us.years=us.years.map(y=>({...y,hits:null,share:null}));
  return {uae:us,benchmark:summarize(v),rows:[...chosen.values()],topU,topV,more,less,skill:{id:skill,name:M.skills[skill]?.[0]||'communication',unmeasured},totalSkills:candidates.length};
 }
-self.onmessage=async({data:{id,op,args}})=>{try{let r;if(op==='load'){const m=await load();r={version:m.version,months:m.months,markets:m.markets,types:m.types,observations:m.observations,skillCount:m.skills.length,extraction_hashes:m.extraction_hashes};}else r=await query(args);self.postMessage({id,ok:true,r});}catch(e){self.postMessage({id,ok:false,error:e.message});}};
+// Full-data totals per market, independent of page filters: distinct ads, companies and ads per calendar year.
+let totalsCache=null;
+async function totals(){
+ if(totalsCache)return totalsCache;
+ await load();const a=await loadArchive();
+ const Y0=2018,Y1=2026,mk=()=>({n:0,companies:new Set(),seen:new Set(),years:new Array(Y1-Y0+1).fill(0),m0:Infinity,m1:-Infinity,markets:new Set()});
+ const g={AE:mk(),AEpanel:mk(),US:mk(),GB:mk(),GLOBAL:mk()},ae=M.markets.indexOf('AE'),us=M.markets.indexOf('US'),gb=M.markets.indexOf('GB');
+ const add=(s,key,m,co,market)=>{if(s.seen.has(key))return;s.seen.add(key);s.n++;if(co)s.companies.add(co);if(market!==undefined)s.markets.add(market);
+  const y=Math.floor(m/12)+2015;if(y>=Y0&&y<=Y1)s.years[y-Y0]++;if(m<s.m0)s.m0=m;if(m>s.m1)s.m1=m;};
+ for(let i=0;i<N;i++){
+  const r=i*12,m=A.getUint8(r),market=A.getUint8(r+1),co=A.getUint32(r+4,true),key=TX[i]*M.markets.length+market;
+  if(market===ae){add(g.AEpanel,key,m,co,market);continue;}
+  add(g.GLOBAL,key,m,co,market);if(market===us)add(g.US,key,m,co,market);if(market===gb)add(g.GB,key,m,co,market);
+ }
+ for(let i=0;i<a.N;i++)add(g.AE,i,a.A.getUint8(i*12),0);
+ const out={years:Array.from({length:Y1-Y0+1},(_,i)=>Y0+i)};
+ for(const [k,s] of Object.entries(g))out[k]={n:s.n,companies:k==='AE'?null:s.companies.size,markets:s.markets.size,years:s.years,from:M.months[s.m0]||null,to:M.months[s.m1]||null};
+ totalsCache=out;return out;
+}
+self.onmessage=async({data:{id,op,args}})=>{try{let r;if(op==='totals')r=await totals();else if(op==='load'){const m=await load();r={version:m.version,months:m.months,markets:m.markets,types:m.types,observations:m.observations,skillCount:m.skills.length,extraction_hashes:m.extraction_hashes};}else r=await query(args);self.postMessage({id,ok:true,r});}catch(e){self.postMessage({id,ok:false,error:e.message});}};
