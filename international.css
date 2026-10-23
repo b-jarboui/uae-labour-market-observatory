@@ -12,7 +12,6 @@
 .bench-data-table th,.bench-data-table td{padding:8px 12px;font-size:12.5px}
 .bench-table.bench-data-table thead th{text-align:end}.bench-table.bench-data-table thead th:nth-child(-n+2){text-align:start}
 .bench-data-table tbody th{display:flex;align-items:center;min-width:200px}
-.bench-row-collected th,.bench-row-collected td{color:var(--ink-2);font-style:italic}
 .bench-data-table caption{text-align:start;font-size:12px;color:var(--ink-2);padding:0 0 8px}
 @media (max-width:760px){.bench-data-kpis{grid-template-columns:1fr}.bench-data{padding:16px}}
 .bench-controls{display:grid;grid-template-columns:1fr 1fr 1.35fr .65fr;gap:16px;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:12px}

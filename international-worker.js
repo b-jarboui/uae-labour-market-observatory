@@ -98,7 +98,7 @@ let totalsCache=null;
 async function totals(){
  if(totalsCache)return totalsCache;
  await load();const a=await loadArchive();
- const Y0=2018,Y1=2026,mk=()=>({n:0,companies:new Set(),seen:new Set(),years:new Array(Y1-Y0+1).fill(0),m0:Infinity,m1:-Infinity,markets:new Set()});
+ const Y0=2021,Y1=2026,mk=()=>({n:0,companies:new Set(),seen:new Set(),years:new Array(Y1-Y0+1).fill(0),m0:Infinity,m1:-Infinity,markets:new Set()});
  const g={AE:mk(),AEpanel:mk(),US:mk(),GB:mk(),GLOBAL:mk()},ae=M.markets.indexOf('AE'),us=M.markets.indexOf('US'),gb=M.markets.indexOf('GB');
  const add=(s,key,m,co,market)=>{if(s.seen.has(key))return;s.seen.add(key);s.n++;if(co)s.companies.add(co);if(market!==undefined)s.markets.add(market);
   const y=Math.floor(m/12)+2015;if(y>=Y0&&y<=Y1)s.years[y-Y0]++;if(m<s.m0)s.m0=m;if(m>s.m1)s.m1=m;};
