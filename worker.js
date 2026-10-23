@@ -293,8 +293,8 @@ const EXCLUDED_SKILLS=new Set(['cv','visa','computer','people','product','sales 
 const countSafe=n=>n>0&&n<10?null:n;
 const safePartition=values=>values.some(n=>n>0&&n<10)?values.map(()=>null):values;
 function wilson(c,n){if(!n||countSafe(c)===null)return null;const z=1.96,p=c/n,d=1+z*z/n,h=z*Math.sqrt(p*(1-p)/n+z*z/(4*n*n));return [(p+z*z/(2*n)-h)/d,(p+z*z/(2*n)+h)/d];}
-function releaseFilter(F){const end=M.months.indexOf('2026-09');return {...F,skill:null,m0:Math.max(M.months.indexOf('2021-01'),F.m0??0),m1:Math.min(end,F.m1??end)};}
-function comparisonWindows(F,preset){const end=releaseFilter(F).m1;const i=(m)=>M.months.indexOf(m);if(preset==='agent')return {a:[i('2023-01'),i('2024-12')],b:[i('2025-01'),end]};if(preset==='gpt')return {a:[i('2021-01'),i('2022-10')],b:[i('2023-01'),i('2024-12')]};return preset==='ytd'?{a:[end-20,end-12],b:[end-8,end]}:{a:[end-23,end-12],b:[end-11,end]};}
+function releaseFilter(F){const end=M.months.indexOf('2026-09');return {...F,skill:null,m0:Math.max(M.months.indexOf('2018-01'),F.m0??0),m1:Math.min(end,F.m1??end)};}
+function comparisonWindows(F,preset){const end=releaseFilter(F).m1;const i=(m)=>M.months.indexOf(m);if(preset==='agent')return {a:[i('2023-01'),i('2024-12')],b:[i('2025-01'),end]};if(preset==='gpt')return {a:[i('2020-11'),i('2022-10')],b:[i('2023-01'),i('2024-12')]};return preset==='ytd'?{a:[end-20,end-12],b:[end-8,end]}:{a:[end-23,end-12],b:[end-11,end]};}
 function specsFor(kind){
  if(kind==='titles')return M.titles.map((name,id)=>({id,name,kind:'title'}));
  if(kind==='families')return ['ai','advanced','basic'].map(name=>({id:name,name,kind:'family',ids:new Set(DIGITAL.entries.filter(e=>name==='ai'?['ai_development','applied_ai'].includes(e.category):name==='basic'?e.category==='basic':e.category!=='basic').map(e=>e.id))}));
