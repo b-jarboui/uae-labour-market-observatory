@@ -4,7 +4,7 @@
  const section=document.createElement('section');section.id='international';section.className='block international';
  document.getElementById('rail').after(section);
  const nav=document.createElement('a');nav.href='#international';nav.textContent='International comparison';document.querySelector('.secnav .wrap').append(nav);
- const worker=new Worker('international-worker.js?v=integrated2021f');let seq=0;const pending=new Map();
+ const worker=new Worker('international-worker.js?v=integrated2021h');let seq=0;const pending=new Map();
  worker.onmessage=({data})=>{const p=pending.get(data.id);if(!p)return;pending.delete(data.id);data.ok?p.resolve(data.r):p.reject(Error(data.error));};
  worker.onerror=e=>{for(const p of pending.values())p.reject(Error(e.message));pending.clear();};
  const rpc=(op,args)=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});worker.postMessage({id,op,args});});
@@ -139,6 +139,9 @@
    series:[{name:tx('UAE','الإمارات'),barWidth:'38%'},{name:cmpName(compare),type:'bar',barWidth:'38%',data:r.shares.map(b=>b===null?null:+(b*100).toFixed(2)),itemStyle:{color:other,borderRadius:[0,3,3,0]},
     label:{show:true,position:'right',formatter:d=>d.value==null?'':d.value.toFixed(1)+'%',color:p.ink2,fontFamily:p.mono,fontSize:12}}]});
   $('#topN').textContent=t0().nOf(fmt(OV.n))+' · '+cmpName(compare)+': '+fmt(r.n)+' '+tx('ads','إعلان');
+  // the same selection's benchmark size beside the UAE count in "Current selection"
+  const m=document.querySelector('#metrics .metric');
+  if(m){m.querySelector('.cmp-d')?.remove();m.insertAdjacentHTML('beforeend',`<div class="d cmp-d"><i class="bench-dot other" aria-hidden="true"></i>${esc(cmpName(compare))}: <b>${fmt(r.n)}</b> ${tx('ads, same selection','إعلان، الاختيار نفسه')}</div>`);}
  }
  const t0=()=>T();
  if(typeof drawTop==='function'){const base=drawTop;window.drawTop=async()=>{await base();await overlayTop();};}
