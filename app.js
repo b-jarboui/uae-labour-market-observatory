@@ -301,7 +301,14 @@ function activeFilterText() {
 function drawOverview() {
   const t = T(), o = OV, cov = META.coverage;
   $("#lede").textContent = t.lede(ymLabel(FIRST), ymLabel(LAST));
-  $("#progress").textContent = (lang === "ar" ? "إعلانات الأرشيف الإماراتي منذ 2021: " : "UAE archive ads since 2021: ") + fmt(cov.packed_ads) + (lang === "ar" ? " · المقارنة الدولية أدناه" : " · international comparison below");
+  $("#progress").textContent = "";
+  // full data size, before any filter: UAE archive plus the international collection
+  const it = cov.international, ar = lang === "ar";
+  $("#dataSize").innerHTML = it ? `<span class="ds-label">${ar ? "حجم البيانات" : "Data used"}</span>`
+    + `<span class="ds-item"><b>${fmt(cov.packed_ads)}</b> ${ar ? "إعلان إماراتي" : "UAE ads"}</span>`
+    + `<span class="ds-item"><b>${fmt(it.ads)}</b> ${ar ? "إعلان دولي" : "international ads"} <small>(${ar ? "الولايات المتحدة" : "US"} ${fmt(it.US.ads)} · ${ar ? "المملكة المتحدة" : "UK"} ${fmt(it.GB.ads)} · ${fmt(it.countries)} ${ar ? "دولة" : "countries"} · ${fmt(it.companies)} ${ar ? "شركة" : "companies"})</small></span>`
+    + `<span class="ds-item ds-total"><b>${fmt(cov.packed_ads + it.ads)}</b> ${ar ? "إجمالي الإعلانات" : "ads in total"}</span>`
+    + `<span class="ds-item ds-period">${ar ? "يناير 2021 – سبتمبر 2026" : "Jan 2021 – Sept 2026"}</span>` : "";
   const own = o.n ? Math.round((o.own / o.n) * 100) : 0;
   const deg = o.eduStated ? o.degreeReq / o.eduStated : 0;
   $("#metrics").innerHTML = [

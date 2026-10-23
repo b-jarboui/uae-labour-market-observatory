@@ -1,6 +1,13 @@
 /* International benchmark: UAE remains the focus; shares are the visual unit. */
 .international{scroll-margin-top:110px;--bench-other:var(--navy,#496cad)}
 .international .bench-intro{max-width:850px;color:var(--ink-2);line-height:1.7;margin:10px 0 22px}
+.datasize{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px;margin-top:18px;padding:12px 18px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:13px;color:var(--ink-2)}
+.datasize:empty{display:none}
+.datasize .ds-label{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;color:var(--teal)}
+.datasize b{font-size:17px;font-weight:600;color:var(--ink);font-variant-numeric:tabular-nums}
+.datasize small{font-size:12px;color:var(--ink-2)}
+.datasize .ds-period{margin-inline-start:auto}
+@media (max-width:760px){.datasize{gap:6px 14px}.datasize .ds-period{margin-inline-start:0}}
 .international[hidden]{display:none}
 .cmp-row{display:flex;flex-wrap:wrap;align-items:center;gap:6px;padding-bottom:10px;border-bottom:1px solid var(--line)}
 .cmp-row .chip{padding:5px 14px;font-size:13.5px}
