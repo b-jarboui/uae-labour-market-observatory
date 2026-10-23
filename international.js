@@ -4,7 +4,7 @@
  const section=document.createElement('section');section.id='international';section.className='block international';
  document.getElementById('rail').after(section);
  const nav=document.createElement('a');nav.href='#international';nav.textContent='International comparison';document.querySelector('.secnav .wrap').append(nav);
- const worker=new Worker('international-worker.js?v=integrated2021e');let seq=0;const pending=new Map();
+ const worker=new Worker('international-worker.js?v=integrated2021f');let seq=0;const pending=new Map();
  worker.onmessage=({data})=>{const p=pending.get(data.id);if(!p)return;pending.delete(data.id);data.ok?p.resolve(data.r):p.reject(Error(data.error));};
  worker.onerror=e=>{for(const p of pending.values())p.reject(Error(e.message));pending.clear();};
  const rpc=(op,args)=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});worker.postMessage({id,op,args});});
@@ -30,7 +30,7 @@
    <label class="bench-search-label">${tx('Find a skill','البحث عن مهارة')}<input id="int-search" type="search" autocomplete="off" placeholder="${tx('Search this skill group…','ابحث في مجموعة المهارات…')}" value="${esc(state.search)}" aria-controls="int-results"></label>
    <label>${tx('Rows per ranking','صفوف كل ترتيب')}<select id="int-limit"><option value="20">20</option><option value="50">50</option></select></label></div>
    <p id="int-group-help" class="bench-group-help">${esc(groupHelp())} <span>${tx('This group also applies to the UAE views above.','تُطبق هذه المجموعة أيضاً على عروض الإمارات أعلاه.')}</span></p><p id="int-status" class="bench-status" role="status" aria-live="polite" aria-atomic="true"></p><div id="int-results" aria-busy="false"></div>`;
-  for(const key of ['target','limit']){el('int-'+key).value=state[key];el('int-'+key).onchange=e=>{state[key]=key==='limit'?+e.target.value:e.target.value;if(key==='uae')state.skill=null;update();};}
+  for(const key of ['target','limit']){el('int-'+key).value=state[key];el('int-'+key).onchange=e=>{if(key==='target')return setCompare(e.target.value);state[key]=+e.target.value;update();};}
   el('int-search').oninput=e=>{state.search=e.target.value;clearTimeout(timer);timer=setTimeout(update,250);};
   el('int-group').value=S.skillGroup;el('int-group').onchange=e=>{S.skillGroup=e.target.value;S.type='';refresh();};
   if(totals)renderData();
@@ -56,7 +56,7 @@
  }
  function currentFilter(){return typeof META!=='undefined'&&META?F():{m0:72,m1:140,types:null,where:'any',req:'any'};}
  async function update(){
-  const revision=++serial,f=currentFilter();
+  const revision=++serial,f=currentFilter();if(!totals)loadTotals();
   el('int-group').value=S.skillGroup;
   el('int-group-help').textContent=groupHelp()+' '+tx('This group also applies to the UAE views above.','تُطبق هذه المجموعة أيضاً على عروض الإمارات أعلاه.');
   el('int-results').inert=true;el('int-results').setAttribute('aria-busy','true');
@@ -109,12 +109,46 @@
   const q=v=>'"'+String(v??'').replace(/^[=+@\t\r]/,"'").replace(/"/g,'""')+'"';
   const url=URL.createObjectURL(new Blob(['\ufeff'+[header,...rows].map(r=>r.map(q).join(',')).join('\r\n')],{type:'text/csv;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`uae-vs-${state.target}-${meta.months[f.m0]}_${meta.months[f.m1]}.csv`;a.click();setTimeout(()=>URL.revokeObjectURL(url),2000);
  }
- window.INTERNATIONAL={state,update,result:null,meta:null,rpc};
- window.refreshInternational=()=>{if(el('int-status'))update();};
- shell();loadTotals();
- new MutationObserver(()=>{shell();update();}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
+ // One page-wide switch: the dashboard shows UAE alone, or UAE with a benchmark market beside it.
+ let compare=new URLSearchParams(location.search).get('compare')||'';if(!['','US','GB','GLOBAL'].includes(compare))compare='';
+ const cmpBox=document.createElement('div');cmpBox.className='cmp-row';cmpBox.setAttribute('role','group');
+ document.querySelector('#rail .rail-inner').prepend(cmpBox);
+ const cmpName=c=>({US:tx('United States','الولايات المتحدة'),GB:tx('United Kingdom','المملكة المتحدة'),GLOBAL:tx('Global','العالم')})[c];
+ function renderCompare(){
+  cmpBox.setAttribute('aria-label',tx('Compare','المقارنة'));
+  cmpBox.innerHTML=`<span class="audlabel">${tx('Show','العرض')}</span>`+['','US','GB','GLOBAL'].map(c=>`<button type="button" class="chip cmp-chip${compare===c?' on':''}" data-cmp="${c}" aria-pressed="${compare===c}">${c?tx('UAE vs ','الإمارات مقابل ')+cmpName(c):tx('UAE only','الإمارات فقط')}</button>`).join('');
+  cmpBox.querySelectorAll('[data-cmp]').forEach(b=>b.onclick=()=>setCompare(b.dataset.cmp));
+  section.hidden=!compare;nav.hidden=!compare;
+ }
+ function setCompare(c){
+  compare=c;if(c){state.target=c;state.skill=null;}
+  const q=new URLSearchParams(location.search);c?q.set('compare',c):q.delete('compare');history.replaceState(null,'',location.pathname+(q.toString()?'?'+q:'')+location.hash);
+  renderCompare();if(c){shell();update();}
+  if(typeof drawTop==='function'&&typeof OV!=='undefined'&&OV)drawTop();
+ }
+ // Benchmark bars beside the UAE bars in "Most requested competencies".
+ async function overlayTop(){
+  if(!compare||typeof OV==='undefined'||!OV)return;const f=currentFilter(),ch=chart('chTop'),nar=narrow();
+  if(f.ind?.length||f.emi?.length){$('#topN').textContent+=' · '+tx('Comparison not available with industry or emirate filters','المقارنة غير متاحة مع مرشحي الصناعة أو الإمارة');return;}
+  const rows=OV.topSkills.slice(0,nar?10:20);let r;
+  try{r=await rpc('shares',{F:f,target:compare,ids:rows.map(x=>x.id)});}catch(e){console.error(e);return;}
+  if(!compare)return;const p=palette(),other=getComputedStyle(section).getPropertyValue('--bench-other').trim()||'#496cad';
+  $('#chTop').style.height=(rows.length*(nar?44:38)+60)+'px';ch.resize();
+  ch.setOption({legend:{show:true,top:0,left:0,textStyle:{color:p.ink2,fontFamily:p.font,fontSize:12},data:[tx('UAE','الإمارات'),cmpName(compare)]},grid:{top:28},
+   tooltip:{formatter:ps=>{const i=ps[0].dataIndex,u=rows[i],b=r.shares[i];return `<b>${esc(u.name)}</b><br>${tx('UAE','الإمارات')}: ${pct(u.share)}<br>${esc(cmpName(compare))}: ${b===null?'—':pct(b)}`;}},
+   series:[{name:tx('UAE','الإمارات'),barWidth:'38%'},{name:cmpName(compare),type:'bar',barWidth:'38%',data:r.shares.map(b=>b===null?null:+(b*100).toFixed(2)),itemStyle:{color:other,borderRadius:[0,3,3,0]},
+    label:{show:true,position:'right',formatter:d=>d.value==null?'':d.value.toFixed(1)+'%',color:p.ink2,fontFamily:p.mono,fontSize:12}}]});
+  $('#topN').textContent=t0().nOf(fmt(OV.n))+' · '+cmpName(compare)+': '+fmt(r.n)+' '+tx('ads','إعلان');
+ }
+ const t0=()=>T();
+ if(typeof drawTop==='function'){const base=drawTop;window.drawTop=async()=>{await base();await overlayTop();};}
+ renderCompare();
+ window.INTERNATIONAL={state,update,result:null,meta:null,rpc,setCompare};
+ window.refreshInternational=()=>{if(compare&&el('int-status'))update();};
+ shell();
+ new MutationObserver(()=>{renderCompare();if(compare){shell();update();}}).observe(document.documentElement,{attributes:true,attributeFilter:['lang']});
  // The archive app calls refreshInternational once its shared filters are ready.
- if(typeof META!=='undefined'&&META)update();
+ if(compare&&typeof META!=='undefined'&&META)update();
 })();
 
 

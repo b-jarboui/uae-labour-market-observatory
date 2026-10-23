@@ -112,4 +112,15 @@ async function totals(){
  for(const [k,s] of Object.entries(g))out[k]={n:s.n,companies:k==='AE'?null:s.companies.size,markets:s.markets.size,years:s.years,from:M.months[s.m0]||null,to:M.months[s.m1]||null};
  totalsCache=out;return out;
 }
-self.onmessage=async({data:{id,op,args}})=>{try{let r;if(op==='totals')r=await totals();else if(op==='load'){const m=await load();r={version:m.version,months:m.months,markets:m.markets,types:m.types,observations:m.observations,skillCount:m.skills.length,extraction_hashes:m.extraction_hashes};}else r=await query(args);self.postMessage({id,ok:true,r});}catch(e){self.postMessage({id,ok:false,error:e.message});}};
+// Benchmark shares for given skill IDs under the page filters (UAE IDs are the first IDs of the shared registry).
+async function shares(args){
+ await load();const f=args.F,v=sample(),ae=M.markets.indexOf('AE'),target=M.markets.indexOf(args.target);
+ for(let i=0;i<N;i++){
+  const r=i*12,m=A.getUint8(r),market=A.getUint8(r+1);
+  if(m<f.m0||m>f.m1)continue;
+  if(args.target==='GLOBAL'?market===ae:market!==target)continue;
+  addRecord(v,m,A.getUint8(r+2),A.getUint32(r+4,true),O[i],O[i+1],K,B,f,-1,TX[i]*M.markets.length+market);
+ }
+ return {n:v.n,companies:v.companies.size,shares:args.ids.map(id=>{const c=safe(v.counts[id]||0);return v.n&&c!==null?c/v.n:null;})};
+}
+self.onmessage=async({data:{id,op,args}})=>{try{let r;if(op==='shares')r=await shares(args);else if(op==='totals')r=await totals();else if(op==='load'){const m=await load();r={version:m.version,months:m.months,markets:m.markets,types:m.types,observations:m.observations,skillCount:m.skills.length,extraction_hashes:m.extraction_hashes};}else r=await query(args);self.postMessage({id,ok:true,r});}catch(e){self.postMessage({id,ok:false,error:e.message});}};
