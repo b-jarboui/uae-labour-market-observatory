@@ -42,6 +42,8 @@ All available successful extractions are used. No detector-score filter, researc
 
 The original reviewed UAE canonicalization pipeline is shared: normalization, synonym map, reviewed families and non-skill exclusions. Legacy IDs stay fixed; new canonical names append. The international pack has 1,233,357 canonical names and uint32 skill IDs, with no 65,000-name truncation.
 
+Skill grouping (October 2026): every skill with 10+ UAE or 30+ international mentions (40,700 names) was reviewed by OpenAI Codex in two passes (near-alphabetical batches, then the 13,276 resulting names with 100+ mentions across the whole list). Variants of the same requirement (spelling, plural, "X certificate/training/license", acronym vs full form, product versions) were merged into one standard name: 7,823 variants into 4,814 standard skills, in both the UAE and international data. An ad naming two variants counts once. Different or narrower requirements stay separate.
+
 Archive comparisons use skills measured in the released UAE vocabulary. An international-only dictionary entry is not interpreted as zero UAE mentions. Existing type IDs are retained except for the reviewed functional-skill corrections in data/skill-group-overrides.json. New labels use their modal extractor type. Job-specific is a category grouping, not a claim that a skill is unique to one occupation.
 
 A nine-bit uint16 flag preserves required/preferred/unknown status and duties/requirements/unknown location. Each canonical skill counts once per sample text. Mention counts 1–9 and corresponding shares/gaps are suppressed in the main comparison.

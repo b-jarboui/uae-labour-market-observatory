@@ -4,7 +4,7 @@
  const section=document.createElement('section');section.id='international';section.className='block international';
  document.getElementById('rail').after(section);
  const nav=document.createElement('a');nav.href='#international';nav.textContent='International comparison';document.querySelector('.secnav .wrap').append(nav);
- const worker=new Worker('international-worker.js?v=integrated2021h');let seq=0;const pending=new Map();
+ const worker=new Worker('international-worker.js?v=integrated2021j');let seq=0;const pending=new Map();
  worker.onmessage=({data})=>{const p=pending.get(data.id);if(!p)return;pending.delete(data.id);data.ok?p.resolve(data.r):p.reject(Error(data.error));};
  worker.onerror=e=>{for(const p of pending.values())p.reject(Error(e.message));pending.clear();};
  const rpc=(op,args)=>new Promise((resolve,reject)=>{const id=++seq;pending.set(id,{resolve,reject});worker.postMessage({id,op,args});});

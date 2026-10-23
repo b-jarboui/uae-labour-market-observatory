@@ -7,7 +7,7 @@ const EXCLUDED_SKILLS=new Set(['cv','visa','computer','people','product','sales 
 async function loadData(){
  if(M)return M;
  const base='data/international/';
- const get=async f=>{const r=await fetch(base+f+'?v=20211023');if(!r.ok)throw Error(f+': '+r.status);return r;};
+ const get=async f=>{const r=await fetch(base+f+'?v=grouped1');if(!r.ok)throw Error(f+': '+r.status);return r;};
  const meta=await(await get('meta.json')).json();
  if(meta.version!==1||meta.skill_id_bytes!==4)throw Error('Unsupported international schema');
  const [a,o,k,b,ad,tx]=await Promise.all(['ads.bin','offsets.bin','skills.bin','sflags.bin','ad_ids.bin','text_ids.bin'].map(async f=>(await get(f)).arrayBuffer()));
@@ -21,7 +21,7 @@ async function loadData(){
 }
 async function loadArchive(){
  if(archive)return archive;
- const get=async f=>{const r=await fetch('data/'+f+'?v=integrated2021');if(!r.ok)throw Error('UAE '+f);return r;};
+ const get=async f=>{const r=await fetch('data/'+f+'?v=grouped1');if(!r.ok)throw Error('UAE '+f);return r;};
  const meta=await(await get('meta.json')).json();
  const [a,o,k,b]=await Promise.all(['ads.bin','offsets.bin','skills.bin','sflags.bin'].map(async f=>(await get(f)).arrayBuffer()));
  archive={meta,A:new DataView(a),O:new Uint32Array(o),K:new Uint16Array(k),B:new Uint8Array(b),N:a.byteLength/12};return archive;
